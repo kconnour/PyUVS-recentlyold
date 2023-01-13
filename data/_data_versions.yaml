@@ -2,6 +2,15 @@
 
 # apsis
 
+# binning
+spatial_bin_edges: 1
+spectral_bin_edges: 1
+
+# detector
+raw: 1
+dark_subtracted: 1
+brightness: 1
+
 # integration
 ephemeris_time: 1
 field_of_view: 1
@@ -15,6 +24,15 @@ dayside: 1
 voltage: 1
 voltage_gain: 1
 
+# pixel_geometry
+latitude: 1
+longitude: 1
+tangent_altitude: 1
+solar_zenith_angle: 1
+emission_angle: 1
+phase_angle: 1
+local_time: 1
+
 # spacecraft_geometry
 sub_spacecraft_latitude: 1
 sub_spacecraft_longitude: 1
@@ -25,16 +43,3 @@ instrument_sun_angle: 1
 spacecraft_velocity_inertial_frame: 1
 instrument_x_field_of_view: 1
 app_flip: 1
-
-# binning
-spatial_bin_edges: 1
-spectral_bin_edges: 1
-
-# pixel_geometry
-latitude: 1
-longitude: 1
-tangent_altitude: 1
-solar_zenith_angle: 1
-emission_angle: 1
-phase_angle: 1
-local_time: 1

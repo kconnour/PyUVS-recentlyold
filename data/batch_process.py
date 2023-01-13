@@ -5,6 +5,7 @@ from astropy.io import fits
 from _structure import DataFile
 from _miscellaneous import Orbit, determine_dayside_files
 import _binning as binning
+import _detector as detector
 import _integration as integration
 import _pixel_geometry as pixel_geometry
 import _spacecraft_geometry as spacecraft_geometry
@@ -55,11 +56,11 @@ if __name__ == '__main__':
                 hduls = [fits.open(f) for f in data_files]
 
                 # muv integration stuff
-                integration_path = f'{segment}/{channel}/integration'
-                integration.add_voltage(data_file, integration_path, hduls)
-                integration.add_voltage_gain(data_file, integration_path, hduls)
+                integration_channel_path = f'{segment}/{channel}/integration'
+                integration.add_voltage(data_file, integration_channel_path, hduls)
+                integration.add_voltage_gain(data_file, integration_channel_path, hduls)
                 if segment == 'apoapse' and channel == 'muv':
-                    integration.add_dayside_integrations(data_file, integration_path)
+                    integration.add_dayside_integrations(data_file, integration_channel_path)
 
                 dayside_files = determine_dayside_files(hduls)
 
@@ -73,6 +74,10 @@ if __name__ == '__main__':
                     binning.add_spectral_bin_edges(data_file, binning_path, daynight_hduls)
 
                     # detector stuff
+                    detector_path = f'{segment}/{channel}/{dn}/detector'
+                    detector.add_raw(data_file, detector_path, daynight_hduls)
+                    detector.add_dark_subtracted(data_file, detector_path, daynight_hduls)
+                    detector.add_brightness(data_file, detector_path, binning_path, integration_path, integration_channel_path, daynight)
 
                     # pixel_geometry stuff
                     pixel_geometry_path = f'{segment}/{channel}/{dn}/pixel_geometry'
