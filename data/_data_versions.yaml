@@ -1,8 +1,8 @@
 # Overall data product number
 
-# Apsis
+# apsis
 
-# Integration
+# integration
 ephemeris_time: 1
 field_of_view: 1
 mirror_data_number: 1
@@ -15,8 +15,15 @@ dayside: 1
 voltage: 1
 voltage_gain: 1
 
-# Engineering
-
 # spacecraft_geometry
+sub_spacecraft_latitude: 1
+sub_spacecraft_longitude: 1
+sub_solar_latitude: 1
+sub_solar_longitude: 1
+sub_spacecraft_altitude: 1
+instrument_sun_angle: 1
+spacecraft_velocity_inertial_frame: 1
+instrument_x_field_of_view: 1
+app_flip: 1
 
 #
