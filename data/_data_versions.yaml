@@ -5,6 +5,15 @@
 # Integration
 ephemeris_time: 1
 field_of_view: 1
+mirror_data_number: 1
+detector_temperature: 1
+case_temperature: 1
+integration_time: 1
+last_validated_orbit: 0
+relay: 1
+dayside: 1
+voltage: 1
+voltage_gain: 1
 
 # Engineering
 

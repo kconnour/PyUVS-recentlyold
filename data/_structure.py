@@ -2,7 +2,7 @@ from pathlib import Path
 
 import h5py
 
-from iuvs_data_files import Orbit
+from _miscellaneous import Orbit
 
 
 class DataFile:
@@ -35,11 +35,12 @@ class DataFile:
         apoapse = self.file.require_group('apoapse')
 
         apoapse.require_group('apsis')
-        apoapse.require_group('engineering')
         apoapse.require_group('integration')
+        apoapse.require_group('spacecraft_geometry')
 
         muv = apoapse.require_group('muv')
 
+        muv.require_group('integration')
         dayside = muv.require_group('dayside')
         nightside = muv.require_group('nightside')
 

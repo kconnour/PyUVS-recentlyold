@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 
-from structure import DataFile
+from _structure import DataFile
 
 
 def get_path_of_integration_version() -> Path:
@@ -14,10 +14,18 @@ def get_latest_pipeline_versions() -> dict:
         return yaml.load(f, Loader=yaml.FullLoader)
 
 
-def current_file_is_up_to_date(data_file: DataFile, dataset_path: str) -> bool:
+def current_dataset_is_up_to_date(data_file: DataFile, dataset_path: str) -> bool:
     latest_pipeline_versions = get_latest_pipeline_versions()
     pipeline = dataset_path.split('/')[-1]
     try:
         return data_file.file[dataset_path].attrs['version'] == latest_pipeline_versions[pipeline]
+    except KeyError:
+        return False
+
+
+def dataset_exists(data_file: DataFile, dataset_path: str) -> bool:
+    try:
+        data_file.file[dataset_path]
+        return True
     except KeyError:
         return False
