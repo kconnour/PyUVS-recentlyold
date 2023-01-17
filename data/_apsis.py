@@ -138,7 +138,7 @@ def add_subsolar_latitude(file: h5py.File, group_path: str) -> None:
         dataset.attrs['comment'] = comment
 
 
-def add_sub_solar_longitude(file: h5py.File, group_path: str) -> None:
+def add_subsolar_longitude(file: h5py.File, group_path: str) -> None:
     def get_data() -> np.ndarray:
         et = file[f'{group_path}/ephemeris_time'][:][0]
         return np.array([spice.compute_subsolar_point(et)[1]])
@@ -303,10 +303,10 @@ def add_mars_sun_distance(file: h5py.File, group_path: str) -> None:
 
 def add_subsolar_subspacecraft_angle(file: h5py.File, group_path: str) -> None:
     def get_data() -> np.ndarray:
-        sub_solar_latitude = file[f'{group_path}/sub_solar_latitude'][:][0]
-        sub_solar_longitude = file[f'{group_path}/sub_solar_longitude'][:][0]
-        sub_spacecraft_latitude = file[f'{group_path}/sub_spacecraft_latitude'][:][0]
-        sub_spacecraft_longitude = file[f'{group_path}/sub_spacecraft_longitude'][:][0]
+        sub_solar_latitude = file[f'{group_path}/subsolar_latitude'][:][0]
+        sub_solar_longitude = file[f'{group_path}/subsolar_longitude'][:][0]
+        sub_spacecraft_latitude = file[f'{group_path}/subspacecraft_latitude'][:][0]
+        sub_spacecraft_longitude = file[f'{group_path}/subspacecraft_longitude'][:][0]
         return np.array([haversine(sub_solar_latitude, sub_solar_longitude, sub_spacecraft_latitude, sub_spacecraft_longitude)])
 
     dataset_name = 'subsolar_subspacecraft_angle'

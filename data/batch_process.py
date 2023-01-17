@@ -6,10 +6,10 @@ from astropy.io import fits
 
 from _miscellaneous import Orbit, determine_dayside_files
 import _apsis as apsis
-import _binning as binning
-import _detector as detector
+#import _binning as binning
+#import _detector as detector
 import _integration as integration
-import _pixel_geometry as pixel_geometry
+#import _pixel_geometry as pixel_geometry
 import _spacecraft_geometry as spacecraft_geometry
 import _spice as spice
 import _structure as structure
@@ -19,16 +19,17 @@ if __name__ == '__main__':
     # Define paths
     data_location = Path('/media/kyle/iuvs/production')
     spice_location = Path('/media/kyle/iuvs/spice')
-    save_location = Path('/media/kyle/iuvs/apoapse')
+    save_location = Path('/media/kyle/iuvs/data')
 
     # Get the ephemeris times of apsis
     spice.clear_existing_kernels()
     spice.furnish_standard_kernels(spice_location)
     # TODO: See if I can compute the latest datetime of the kernels I have and use that
     # TODO: Change 1 minute resolution to 1 second since I only have to compute it once I can tank the time penalty
-    apoapsis_orbits, apoapsis_ephemeris_times = spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1), step_size=1)
+    apoapsis_orbits, apoapsis_ephemeris_times = spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1), step_size=60)
 
     for orbit in range(3400, 3405):
+        print(orbit)
         hdf5_filename = structure.make_hdf5_filename(orbit, save_location)
         file = structure.open_latest_file(hdf5_filename)
         structure.make_empty_hdf5_groups(file)
@@ -40,7 +41,7 @@ if __name__ == '__main__':
             hduls = [fits.open(f) for f in data_files]
 
             # apsis stuff
-            if segment in ['apoapse']:
+            if segment in ['apoapse']:  # can be expanded to periapse here
                 match segment:
                     case 'apoapse':
                         apsis_ephemeris_times = apoapsis_ephemeris_times
@@ -69,16 +70,17 @@ if __name__ == '__main__':
             integration.add_relay_classification(file, integration_path)
 
             # spacecraft_geometry stuff
+            '''
             spacecraft_geometry_path = f'{segment}/spacecraft_geometry'
-            spacecraft_geometry.add_sub_spacecraft_latitude(data_file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_sub_spacecraft_longitude(data_file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_sub_solar_latitude(data_file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_sub_solar_longitude(data_file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_spacecraft_altitude(data_file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_instrument_sun_angle(data_file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_spacecraft_velocity_inertial_frame(data_file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_instrument_x_field_of_view(data_file, spacecraft_geometry_path, hduls)
-
+            spacecraft_geometry.add_sub_spacecraft_latitude(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_sub_spacecraft_longitude(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_sub_solar_latitude(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_sub_solar_longitude(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_spacecraft_altitude(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_instrument_sun_angle(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_spacecraft_velocity_inertial_frame(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_instrument_x_field_of_view(file, spacecraft_geometry_path, hduls)
+            
             # Add APP flip
             spacecraft_geometry.add_app_flip(data_file, spacecraft_geometry_path)
 
@@ -127,4 +129,4 @@ if __name__ == '__main__':
                         pass
                     else:
                         # mlr stuff
-                        pass
+                        pass'''
