@@ -3,7 +3,7 @@ from pathlib import Path
 
 from astropy.io import fits
 
-from _structure import DataFile
+
 from _miscellaneous import Orbit, determine_dayside_files
 import _apsis as apsis
 import _binning as binning
@@ -12,24 +12,27 @@ import _integration as integration
 import _pixel_geometry as pixel_geometry
 import _spacecraft_geometry as spacecraft_geometry
 import _spice as spice
+import _structure as structure
 
 
 if __name__ == '__main__':
+    # Define paths
     data_location = Path('/media/kyle/iuvs/production')
-    save_location = Path('/media/kyle/iuvs/apoapse')
     spice_location = Path('/media/kyle/iuvs/spice')
+    save_location = Path('/media/kyle/iuvs/apoapse')
 
     # Get the ephemeris times of apsis
-    spice.generic.clear_existing_kernels()
-    spice.generic.furnish_standard_kernels(spice_location)
-    apoapsis_orbits, apoapsis_ephemeris_times = spice.generic.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1))
-    #print(apoapsis_orbits)
+    spice.clear_existing_kernels()
+    spice.furnish_standard_kernels(spice_location)
+    # TODO: See if I can compute the latest datetime of the kernels I have and use that
+    # TODO: Change 1 minute resolution to 1 second since I only have to compute it once I can tank the time penalty
+    apoapsis_orbits, apoapsis_ephemeris_times = spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1), step_size=1)
 
     for orbit in range(3400, 3405):
-        et = apoapsis_ephemeris_times[apoapsis_orbits==orbit]
-        data_file = DataFile(orbit, save_location)
-        data_file.make_empty_hdf5_groups()
-        data_file.file.attrs['orbit'] = orbit
+        hdf5_filename = structure.make_hdf5_filename(orbit, save_location)
+        file = structure.open_latest_file(hdf5_filename)
+        structure.make_empty_hdf5_groups(file)
+        file.attrs['orbit'] = orbit
 
         for segment in ['apoapse']:
             # Get some data to work with. For FUV/MUV independent data, just choose whatever channel
@@ -42,31 +45,28 @@ if __name__ == '__main__':
                     case 'apoapse':
                         apsis_ephemeris_times = apoapsis_ephemeris_times
                 apsis_path = f'{segment}/apsis'
-                apsis.add_orbit_ephemeris_time(data_file, apsis_path, apsis_ephemeris_times)
-                apsis.add_mars_year(data_file, apsis_path)
-                apsis.add_solar_longitude(data_file, apsis_path)
-                apsis.add_sol(data_file, apsis_path)
-                apsis.add_sub_solar_latitude(data_file, apsis_path)
-                apsis.add_sub_solar_longitude(data_file, apsis_path)
-                apsis.add_sub_spacecraft_latitude(data_file, apsis_path)
-                apsis.add_sub_spacecraft_longitude(data_file, apsis_path)
-                apsis.add_sub_spacecraft_altitude(data_file, apsis_path)
-                apsis.add_mars_sun_distance(data_file, apsis_path)
-                apsis.add_sub_solar_spacecraft_angle(data_file, apsis_path)
-
-            if not hduls:
-                continue
+                apsis.add_apsis_ephemeris_time(file, apsis_path, apsis_ephemeris_times)
+                apsis.add_mars_year(file, apsis_path)
+                apsis.add_solar_longitude(file, apsis_path)
+                apsis.add_sol(file, apsis_path)
+                apsis.add_subsolar_latitude(file, apsis_path)
+                apsis.add_subsolar_longitude(file, apsis_path)
+                apsis.add_subspacecraft_latitude(file, apsis_path)
+                apsis.add_subspacecraft_longitude(file, apsis_path)
+                apsis.add_subspacecraft_altitude(file, apsis_path)
+                apsis.add_mars_sun_distance(file, apsis_path)
+                apsis.add_subsolar_subspacecraft_angle(file, apsis_path)
 
             # integration stuff
             integration_path = f'{segment}/integration'
-            integration.add_ephemeris_time(data_file, integration_path, hduls)
-            integration.add_field_of_view(data_file, integration_path, hduls)
-            integration.add_mirror_data_number(data_file, integration_path, hduls)
-            integration.add_detector_temperature(data_file, integration_path, hduls)
-            integration.add_case_temperature(data_file, integration_path, hduls)
-            integration.add_integration_time(data_file, integration_path, hduls)
-            integration.add_swath_number(data_file, integration_path)
-            integration.add_relay_classification(data_file, integration_path)
+            integration.add_ephemeris_time(file, integration_path, hduls)
+            integration.add_field_of_view(file, integration_path, hduls)
+            integration.add_mirror_data_number(file, integration_path, hduls)
+            integration.add_detector_temperature(file, integration_path, hduls)
+            integration.add_case_temperature(file, integration_path, hduls)
+            integration.add_integration_time(file, integration_path, hduls)
+            integration.add_swath_number(file, integration_path)
+            integration.add_relay_classification(file, integration_path)
 
             # spacecraft_geometry stuff
             spacecraft_geometry_path = f'{segment}/spacecraft_geometry'

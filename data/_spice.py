@@ -9,9 +9,9 @@ import spiceypy as spice
 from constants import orbit_insertion_date
 
 
-_target = 'Mars'
-_observer = 'MAVEN'
-_abcorr = 'LT+S'
+target = 'Mars'
+observer = 'MAVEN'
+abcorr = 'LT+S'
 body = 499  # Mars IAU code
 
 
@@ -191,6 +191,7 @@ def compute_maven_apsis_et(
         end_time: datetime = datetime.utcnow(),
         step_size: float = 60):
     """Compute the ephemeris time at MAVEN's apses.
+
     Parameters
     ----------
     segment : str
@@ -202,6 +203,7 @@ def compute_maven_apsis_et(
         The latest datetime to include in the search.
     step_size: float
         The step size [seconds] to use for the search.
+
     Returns
     -------
     orbit_numbers : np.ndarray
@@ -236,7 +238,7 @@ def compute_maven_apsis_et(
     ninterval = round((et[1] - et[0]) / step_size)
     result = spice.utils.support_types.SPICEDOUBLE_CELL(
         round(1.1 * (et[1] - et[0]) / 4.5))
-    spice.gfdist(_target, abcorr, _observer, relate, refval, adjust, step_size,
+    spice.gfdist(target, abcorr, observer, relate, refval, adjust, step_size,
                  ninterval, cnfine, result=result)
     count = spice.wncard(result)
     et_array = np.zeros(count)
@@ -263,7 +265,7 @@ def compute_solar_longitude(et: float) -> float:
     et: float
         The ephemeris time.
     """
-    return np.degrees(spice.lspcn(_target, et, _abcorr))
+    return np.degrees(spice.lspcn(target, et, abcorr))
 
 
 def compute_subsolar_point(et: float) -> tuple[float, float]:
@@ -278,7 +280,7 @@ def compute_subsolar_point(et: float) -> tuple[float, float]:
         The [latitude, longitude] of the subsolar point.
     """
     spoint, _, _ = spice.subslr(
-        'Intercept: ellipsoid', _target, et, 'IAU_MARS', _abcorr, _observer)
+        'Intercept: ellipsoid', target, et, 'IAU_MARS', abcorr, observer)
     rpoint, colatpoint, lonpoint = spice.recsph(spoint)
     subsolar_lat = 90 - np.degrees(colatpoint)
     subsolar_lon = np.degrees(lonpoint)
@@ -298,7 +300,7 @@ def compute_subspacecraft_point(et: float) -> tuple[float, float]:
         The [latitude, longitude] of the subspacecraft point.
     """
     spoint, _, _ = spice.subpnt(
-        'Intercept: ellipsoid', _target, et, 'IAU_MARS', _abcorr, _observer)
+        'Intercept: ellipsoid', target, et, 'IAU_MARS', abcorr, observer)
     rpoint, colatpoint, lonpoint = spice.recsph(spoint)
     subsc_lat = 90 - np.degrees(colatpoint)
     subsc_lon = np.degrees(lonpoint)
@@ -308,7 +310,7 @@ def compute_subspacecraft_point(et: float) -> tuple[float, float]:
 
 def _compute_distance(et: float, observer: str) -> float:
     _, _, srfvec = spice.subpnt(
-        'Intercept: ellipsoid', _target, et, 'IAU_MARS', _abcorr, observer)
+        'Intercept: ellipsoid', target, et, 'IAU_MARS', abcorr, observer)
     return np.sqrt(np.sum(srfvec ** 2))
 
 
@@ -320,7 +322,7 @@ def compute_subspacecraft_altitude(et: float) -> float:
     et: float
         The ephemeris time.
     """
-    return _compute_distance(et, _observer)
+    return _compute_distance(et, observer)
 
 
 def compute_mars_sun_distance(et: float) -> float:

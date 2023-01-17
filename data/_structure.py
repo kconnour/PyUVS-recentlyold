@@ -5,54 +5,47 @@ import h5py
 from _miscellaneous import Orbit
 
 
-class DataFile:
-    def __init__(self, orbit: int, save_location: Path):
-        self.orbit = Orbit(orbit)
-        self.save_location = save_location
+def make_hdf5_filename(orbit: int, save_location: Path) -> Path:
+    orbit = Orbit(orbit)
+    filename = f'{orbit.code}.hdf5'
+    return save_location / orbit.block / filename
 
-        self.filename = self._make_hdf5_filename()
-        self.file = self._open_latest_file()
 
-    def _make_hdf5_filename(self) -> Path:
-        filename = f'{self.orbit.code}.hdf5'
-        return self.save_location / self.orbit.block / filename
+def open_latest_file(filepath: Path) -> h5py.File:
+    filepath.parent.mkdir(parents=True, exist_ok=True)
 
-    def _open_latest_file(self) -> h5py.File:
-        self.filename.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        f = h5py.File(filepath, mode='x')  # 'x' means to create the file but fail if it already exists
+    except FileExistsError:
+        f = h5py.File(filepath, mode='r+')  # 'r+' means read/write and file must exist
+    return f
 
-        try:
-            f = h5py.File(self.filename, mode='x')  # 'x' means to create the file but fail if it already exists
-        except FileExistsError:
-            f = h5py.File(self.filename, mode='r+')  # 'r+' means read/write and file must exist
-        return f
 
-    def make_empty_hdf5_groups(self) -> None:
-        # This can be expanded to other segments if necessary
-        self._make_empty_apoapse_groups()
+def make_empty_hdf5_groups(file: h5py.File) -> None:
+    # This can be expanded to other segments if necessary
+    make_empty_apoapse_groups(file)
 
-    def _make_empty_apoapse_groups(self) -> None:
-        # require_group will make it if it doesn't exist. Useful for adding groups in later version
-        apoapse = self.file.require_group('apoapse')
 
-        apoapse.require_group('apsis')
-        apoapse.require_group('integration')
-        apoapse.require_group('spacecraft_geometry')
+def make_empty_apoapse_groups(file: h5py.File) -> None:
+    # require_group will make it if it doesn't exist. Useful for adding groups in later version
+    apoapse = file.require_group('apoapse')
 
-        muv = apoapse.require_group('muv')
+    apoapse.require_group('apsis')
+    apoapse.require_group('integration')
+    apoapse.require_group('spacecraft_geometry')
 
-        muv.require_group('integration')
-        dayside = muv.require_group('dayside')
-        nightside = muv.require_group('nightside')
+    muv = apoapse.require_group('muv')
 
-        dayside.require_group('binning')
-        dayside.require_group('detector')
-        dayside.require_group('pixel_geometry')
-        dayside.require_group('retrievals')
+    muv.require_group('integration')
+    dayside = muv.require_group('dayside')
+    nightside = muv.require_group('nightside')
 
-        nightside.require_group('binning')
-        nightside.require_group('detector')
-        nightside.require_group('pixel_geometry')
-        nightside.require_group('mlr')
+    dayside.require_group('binning')
+    dayside.require_group('detector')
+    dayside.require_group('pixel_geometry')
+    dayside.require_group('retrievals')
 
-    def close(self) -> None:
-        self.file.close()
+    nightside.require_group('binning')
+    nightside.require_group('detector')
+    nightside.require_group('pixel_geometry')
+    nightside.require_group('mlr')
