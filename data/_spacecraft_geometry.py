@@ -151,7 +151,7 @@ def add_instrument_sun_angle(data_file: DataFile, group_path: str, hduls: list[h
 
 def add_spacecraft_velocity_inertial_frame(data_file: DataFile, group_path: str, hduls: list[hdulist]) -> None:
     def get_data() -> np.ndarray:
-        return np.vstack([f['spacecraftgeometry'].data['v_spacecraft_rate_inertial'] for f in hduls])
+        return np.concatenate([f['spacecraftgeometry'].data['v_spacecraft_rate_inertial'] for f in hduls])
 
     dataset_name = 'spacecraft_velocity_inertial_frame'
     dataset_path = make_dataset_path(group_path, dataset_name)
@@ -176,7 +176,7 @@ def add_spacecraft_velocity_inertial_frame(data_file: DataFile, group_path: str,
 
 def add_instrument_x_field_of_view(data_file: DataFile, group_path: str, hduls: list[hdulist]) -> None:
     def get_data() -> np.ndarray:
-        return np.vstack([f['spacecraftgeometry'].data['vx_instrument_inertial'] for f in hduls])
+        return np.concatenate([f['spacecraftgeometry'].data['vx_instrument_inertial'] for f in hduls])
 
     dataset_name = 'instrument_x_field_of_view'
     dataset_path = make_dataset_path(group_path, dataset_name)

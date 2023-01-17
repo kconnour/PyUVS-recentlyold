@@ -1,6 +1,18 @@
 # Overall data product number
 
 # apsis
+apsis_ephemeris_time: 1
+apsis_mars_year: 1
+apsis_solar_longitude: 1
+apsis_sol: 1
+apsis_sub_solar_latitude: 1
+apsis_sub_solar_longitude: 1
+apsis_sub_spacecraft_latitude: 1
+apsis_sub_spacecraft_longitude: 1
+apsis_sub_spacecraft_altitude: 1
+apsis_sub_spacecraft_local_time: 1
+apsis_mars_sun_distance: 1
+apsis_sub_solar_spacecraft_angle: 1
 
 # binning
 spatial_bin_edges: 1

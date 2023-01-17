@@ -1,30 +1,61 @@
+from datetime import datetime
 from pathlib import Path
 
 from astropy.io import fits
 
 from _structure import DataFile
 from _miscellaneous import Orbit, determine_dayside_files
+import _apsis as apsis
 import _binning as binning
 import _detector as detector
 import _integration as integration
 import _pixel_geometry as pixel_geometry
 import _spacecraft_geometry as spacecraft_geometry
+import _spice as spice
 
 
 if __name__ == '__main__':
     data_location = Path('/media/kyle/iuvs/production')
     save_location = Path('/media/kyle/iuvs/apoapse')
+    spice_location = Path('/media/kyle/iuvs/spice')
 
-    for orbit in [4000]:
+    # Get the ephemeris times of apsis
+    spice.generic.clear_existing_kernels()
+    spice.generic.furnish_standard_kernels(spice_location)
+    apoapsis_orbits, apoapsis_ephemeris_times = spice.generic.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1))
+    #print(apoapsis_orbits)
+
+    for orbit in range(3400, 3405):
+        et = apoapsis_ephemeris_times[apoapsis_orbits==orbit]
         data_file = DataFile(orbit, save_location)
         data_file.make_empty_hdf5_groups()
         data_file.file.attrs['orbit'] = orbit
 
         for segment in ['apoapse']:
+            # Get some data to work with. For FUV/MUV independent data, just choose whatever channel
             data_files = sorted((data_location / Orbit(orbit).block).glob(f'*{segment}*{Orbit(orbit).code}*muv*.gz'))
             hduls = [fits.open(f) for f in data_files]
 
             # apsis stuff
+            if segment in ['apoapse']:
+                match segment:
+                    case 'apoapse':
+                        apsis_ephemeris_times = apoapsis_ephemeris_times
+                apsis_path = f'{segment}/apsis'
+                apsis.add_orbit_ephemeris_time(data_file, apsis_path, apsis_ephemeris_times)
+                apsis.add_mars_year(data_file, apsis_path)
+                apsis.add_solar_longitude(data_file, apsis_path)
+                apsis.add_sol(data_file, apsis_path)
+                apsis.add_sub_solar_latitude(data_file, apsis_path)
+                apsis.add_sub_solar_longitude(data_file, apsis_path)
+                apsis.add_sub_spacecraft_latitude(data_file, apsis_path)
+                apsis.add_sub_spacecraft_longitude(data_file, apsis_path)
+                apsis.add_sub_spacecraft_altitude(data_file, apsis_path)
+                apsis.add_mars_sun_distance(data_file, apsis_path)
+                apsis.add_sub_solar_spacecraft_angle(data_file, apsis_path)
+
+            if not hduls:
+                continue
 
             # integration stuff
             integration_path = f'{segment}/integration'
@@ -67,6 +98,8 @@ if __name__ == '__main__':
                 for daynight in [True, False]:
                     dn = 'dayside' if daynight else 'nightside'
                     daynight_hduls = [f for c, f in enumerate(hduls) if dayside_files[c]==daynight]
+                    if not daynight_hduls:
+                        continue
 
                     # binning stuff
                     binning_path = f'{segment}/{channel}/{dn}/binning'

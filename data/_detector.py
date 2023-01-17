@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore')
 
 def add_raw(data_file: DataFile, group_path: str, hduls: list[hdulist]) -> None:
     def get_data() -> np.ndarray:
-        return np.vstack([f['detector_raw'].data for f in hduls])
+        return np.concatenate([f['detector_raw'].data for f in hduls])
 
     dataset_name = 'raw'
     dataset_path = make_dataset_path(group_path, dataset_name)
@@ -38,7 +38,7 @@ def add_raw(data_file: DataFile, group_path: str, hduls: list[hdulist]) -> None:
 
 def add_dark_subtracted(data_file: DataFile, group_path: str, hduls: list[hdulist]) -> None:
     def get_data() -> np.ndarray:
-        return np.vstack([f['detector_dark_subtracted'].data for f in hduls])
+        return np.concatenate([f['detector_dark_subtracted'].data for f in hduls])
 
     dataset_name = 'dark_subtracted'
     dataset_path = make_dataset_path(group_path, dataset_name)

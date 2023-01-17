@@ -14,13 +14,9 @@ def get_latest_pipeline_versions() -> dict:
         return yaml.load(f, Loader=yaml.FullLoader)
 
 
-def current_dataset_is_up_to_date(data_file: DataFile, dataset_path: str) -> bool:
-    latest_pipeline_versions = get_latest_pipeline_versions()
-    pipeline = dataset_path.split('/')[-1]
-    try:
-        return data_file.file[dataset_path].attrs['version'] == latest_pipeline_versions[pipeline]
-    except KeyError:
-        return False
+def current_dataset_is_up_to_date(data_file: DataFile, dataset_path: str, latest_version: int) -> bool:
+    return data_file.file[dataset_path].attrs['version'] == latest_version
+
 
 
 def dataset_exists(data_file: DataFile, dataset_path: str) -> bool:
