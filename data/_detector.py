@@ -1,10 +1,10 @@
 import warnings
 
+import h5py
 import numpy as np
 
 from constants import pixel_angular_size
 from _anc import load_muv_flatfield, load_muv_sensitivity_curve_observational, load_voltage_correction_voltage, load_voltage_correction_coefficients
-from _structure import DataFile
 from _data_versions import current_dataset_is_up_to_date, get_latest_pipeline_versions, dataset_exists
 from _miscellaneous import make_dataset_path, hdulist
 
@@ -12,9 +12,15 @@ from _miscellaneous import make_dataset_path, hdulist
 warnings.filterwarnings('ignore')
 
 
-def add_raw(data_file: DataFile, group_path: str, hduls: list[hdulist]) -> None:
+def add_raw(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
-        return np.concatenate([f['detector_raw'].data for f in hduls])
+        if hduls:
+            data = np.concatenate([f['detector_raw'].data for f in hduls])
+            app_flip = file[f'{segment_path}/app_flip'][:][0]
+            data = np.fliplr(data) if app_flip else data
+        else:
+            data = np.array([])
+        return data
 
     dataset_name = 'raw'
     dataset_path = make_dataset_path(group_path, dataset_name)
@@ -22,23 +28,29 @@ def add_raw(data_file: DataFile, group_path: str, hduls: list[hdulist]) -> None:
     unit = 'DN'
     comment = 'This data is taken from the detector_raw structure of the v13 IUVS data.'
 
-    if not dataset_exists(data_file, dataset_path):
-        dataset = data_file.file[group_path].create_dataset(dataset_name, data=get_data())
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
         dataset.attrs['version'] = latest_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(data_file, dataset_path):
-        dataset = data_file.file[dataset_path]
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+        dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
 
-def add_dark_subtracted(data_file: DataFile, group_path: str, hduls: list[hdulist]) -> None:
+def add_dark_subtracted(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
-        return np.concatenate([f['detector_dark_subtracted'].data for f in hduls])
+        if hduls:
+            data = np.concatenate([f['detector_dark_subtracted'].data for f in hduls])
+            app_flip = file[f'{segment_path}/app_flip'][:][0]
+            data = np.fliplr(data) if app_flip else data
+        else:
+            data = np.array([])
+        return data
 
     dataset_name = 'dark_subtracted'
     dataset_path = make_dataset_path(group_path, dataset_name)
@@ -46,21 +58,21 @@ def add_dark_subtracted(data_file: DataFile, group_path: str, hduls: list[hdulis
     unit = 'DN'
     comment = 'This data is taken from the detector_dark_subtracted structure of the v13 IUVS data.'
 
-    if not dataset_exists(data_file, dataset_path):
-        dataset = data_file.file[group_path].create_dataset(dataset_name, data=get_data())
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
         dataset.attrs['version'] = latest_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(data_file, dataset_path):
-        dataset = data_file.file[dataset_path]
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+        dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
 
-def add_brightness(data_file: DataFile, group_path: str, binning_path: str, time_path: str, voltage_path: str, daynight: bool) -> None:
+def add_brightness(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str, binning_path: str, time_path: str, voltage_path: str, daynight: bool) -> None:
     def make_flatfield(
             spatial_bin_edges: np.ndarray,
             spectral_bin_edges: np.ndarray) -> np.ndarray:
@@ -133,34 +145,40 @@ def add_brightness(data_file: DataFile, group_path: str, binning_path: str, time
         return (norm_img / normalized_img * mcp_gain / ref_mcp_gain).T
 
     def get_data() -> np.ndarray:
-        daynight_integrations = data_file.file[f'{voltage_path}/dayside'][:] == daynight
+        if hduls:
+            daynight_integrations = file[f'{voltage_path}/dayside'][:] == daynight
 
-        detector_dark_subtracted = data_file.file[f'{group_path}/dark_subtracted'][:]
-        spatial_bin_edges_ds = data_file.file[f'{binning_path}/spatial_bin_edges']
-        spatial_bin_edges = spatial_bin_edges_ds[:]
-        spatial_bin_width = spatial_bin_edges_ds.attrs['width']
-        spectral_bin_edges_ds = data_file.file[f'{binning_path}/spectral_bin_edges']
-        spectral_bin_edges = spectral_bin_edges_ds[:]
-        spectral_bin_width = spectral_bin_edges_ds.attrs['width']
-        integration_time = data_file.file[f'{time_path}/integration_time'][:][daynight_integrations]
-        voltage = data_file.file[f'{voltage_path}/voltage'][:][daynight_integrations]
-        voltage_gain = data_file.file[f'{voltage_path}/voltage_gain'][:][daynight_integrations]
+            detector_dark_subtracted = file[f'{group_path}/dark_subtracted'][:]
+            spatial_bin_edges_ds = file[f'{binning_path}/spatial_bin_edges']
+            spatial_bin_edges = spatial_bin_edges_ds[:]
+            spatial_bin_width = spatial_bin_edges_ds.attrs['width']
+            spectral_bin_edges_ds = file[f'{binning_path}/spectral_bin_edges']
+            spectral_bin_edges = spectral_bin_edges_ds[:]
+            spectral_bin_width = spectral_bin_edges_ds.attrs['width']
+            integration_time = file[f'{time_path}/integration_time'][:][daynight_integrations]
+            voltage = file[f'{voltage_path}/voltage'][:][daynight_integrations]
+            voltage_gain = file[f'{voltage_path}/voltage_gain'][:][daynight_integrations]
 
-        flatfield = make_flatfield(spatial_bin_edges, spectral_bin_edges)
-        sensitivity_curve = load_muv_sensitivity_curve_observational()[:, 1]
+            flatfield = make_flatfield(spatial_bin_edges, spectral_bin_edges)
+            sensitivity_curve = load_muv_sensitivity_curve_observational()[:, 1]
 
-        # Make the sensitivity curve 1024 elements for simplicity
-        sensitivity_curve = np.repeat(sensitivity_curve, 2)
+            # Make the sensitivity curve 1024 elements for simplicity
+            sensitivity_curve = np.repeat(sensitivity_curve, 2)
 
-        # Get the sensitivity in each spectral bin
-        # For array shape reasons, I spread this out over several lines
-        rebinned_sensitivity_curve = np.array([np.mean(sensitivity_curve[spectral_bin_edges[i]:spectral_bin_edges[i+1]]) for i in range(spectral_bin_edges.shape[0] - 1)])
-        partial_corrected_brightness = detector_dark_subtracted / rebinned_sensitivity_curve * 4 * np.pi * 10**-9 / pixel_angular_size / spatial_bin_width
-        partial_corrected_brightness = (partial_corrected_brightness.T / voltage_gain / integration_time).T
+            # Get the sensitivity in each spectral bin
+            # For array shape reasons, I spread this out over several lines
+            rebinned_sensitivity_curve = np.array([np.mean(sensitivity_curve[spectral_bin_edges[i]:spectral_bin_edges[i+1]]) for i in range(spectral_bin_edges.shape[0] - 1)])
+            partial_corrected_brightness = detector_dark_subtracted / rebinned_sensitivity_curve * 4 * np.pi * 10**-9 / pixel_angular_size / spatial_bin_width
+            partial_corrected_brightness = (partial_corrected_brightness.T / voltage_gain / integration_time).T
 
-        # Hypothetically these are good, but in reality they need flatfield and voltage corrections
-        voltage_correction = make_gain_correction(detector_dark_subtracted, spatial_bin_width, spectral_bin_width, integration_time, voltage, voltage_gain)
-        return partial_corrected_brightness / flatfield * voltage_correction
+            # Hypothetically these are good, but in reality they need flatfield and voltage corrections
+            voltage_correction = make_gain_correction(detector_dark_subtracted, spatial_bin_width, spectral_bin_width, integration_time, voltage, voltage_gain)
+            data = partial_corrected_brightness / flatfield * voltage_correction
+            app_flip = file[f'{segment_path}/app_flip'][:][0]
+            data = np.fliplr(data) if app_flip else data
+        else:
+            data = np.array([])
+        return data
 
     dataset_name = 'brightness'
     dataset_path = make_dataset_path(group_path, dataset_name)
@@ -168,14 +186,14 @@ def add_brightness(data_file: DataFile, group_path: str, binning_path: str, time
     unit = 'kR'
     comment = 'This data is created myself. It ignores the v13 primary.'
 
-    if not dataset_exists(data_file, dataset_path):
-        dataset = data_file.file[group_path].create_dataset(dataset_name, data=get_data())
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
         dataset.attrs['version'] = latest_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(data_file, dataset_path):
-        dataset = data_file.file[dataset_path]
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+        dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_version
         dataset.attrs['unit'] = unit
