@@ -37,16 +37,19 @@ voltage: 1
 voltage_gain: 1
 
 # pixel_geometry
-pixel_vector: 1
-right_ascension: 1
-declination: 1
 latitude: 1
 longitude: 1
 tangent_altitude: 1
+tangent_altitude_rate: 1
+line_of_sight: 1
 solar_zenith_angle: 1
 emission_angle: 1
 phase_angle: 1
+zenith_angle: 1
 local_time: 1
+right_ascension: 1
+declination: 1
+pixel_vector: 1
 
 # spacecraft_geometry
 subsolar_latitude: 1
