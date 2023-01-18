@@ -1,4 +1,5 @@
 from pathlib import Path
+import warnings
 
 import h5py
 import numpy as np
@@ -188,20 +189,22 @@ def add_swath_number(file: h5py.File, group_path: str) -> None:
         number.
 
         """
-        mirror_change = np.diff(mirror_angles)
-        threshold = np.abs(np.median(mirror_change)) * 4
-        mirror_discontinuities = np.where(np.abs(mirror_change) > threshold)[0] + 1
-        if any(mirror_discontinuities):
-            n_swaths = len(mirror_discontinuities) + 1
-            integrations = range(len(mirror_angles))
-            interp_swaths = np.interp(integrations, mirror_discontinuities, range(1, n_swaths), left=0)
-            return np.floor(interp_swaths).astype('int')
-        else:
-            return np.zeros(mirror_angles.shape)
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            mirror_change = np.diff(mirror_angles)
+            threshold = np.abs(np.median(mirror_change)) * 4
+            mirror_discontinuities = np.where(np.abs(mirror_change) > threshold)[0] + 1
+            if any(mirror_discontinuities):
+                n_swaths = len(mirror_discontinuities) + 1
+                integrations = range(len(mirror_angles))
+                interp_swaths = np.interp(integrations, mirror_discontinuities, range(1, n_swaths), left=0)
+                return np.floor(interp_swaths).astype('int')
+            else:
+                return np.zeros(mirror_angles.shape)
 
     def get_n_swaths(swath_numbers: np.ndarray) -> int:
         try:
-            return swath_number[-1] + 1
+            return swath_numbers[-1] + 1
         except IndexError:
             return 0
 

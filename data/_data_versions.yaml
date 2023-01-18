@@ -49,11 +49,11 @@ phase_angle: 1
 local_time: 1
 
 # spacecraft_geometry
-sub_spacecraft_latitude: 1
-sub_spacecraft_longitude: 1
-sub_solar_latitude: 1
-sub_solar_longitude: 1
-sub_spacecraft_altitude: 1
+subsolar_latitude: 1
+subsolar_longitude: 1
+subspacecraft_latitude: 1
+subspacecraft_longitude: 1
+subspacecraft_altitude: 1
 instrument_sun_angle: 1
 spacecraft_velocity_inertial_frame: 1
 instrument_x_field_of_view: 1
