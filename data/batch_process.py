@@ -24,10 +24,10 @@ if __name__ == '__main__':
     spice.clear_existing_kernels()
     spice.furnish_standard_kernels(spice_location)
     # TODO: See if I can compute the latest datetime of the kernels I have and use that
-    # TODO: Change 1 minute resolution to 1 second since I only have to compute it once I can tank the time penalty
+    # TODO: spice fails if I try to give this 1 second resolution
     apoapsis_orbits, apoapsis_ephemeris_times = spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1), step_size=60)
 
-    for orbit in range(3400, 3405):
+    for orbit in range(1, 4000):
         print(orbit)
         hdf5_filename = structure.make_hdf5_filename(orbit, save_location)
         file = structure.open_latest_file(hdf5_filename)

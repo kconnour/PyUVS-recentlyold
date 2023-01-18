@@ -214,6 +214,7 @@ def add_swath_number(file: h5py.File, group_path: str) -> None:
     comment = 'The number of each swath in the observation.'
     orbit = file.attrs['orbit']
 
+    # If it doesn't exist, it should always be larger than the last validated orbit. Cause if not, how would it be validated?
     if not dataset_exists(file, dataset_path):
         swath_number = determine_swath_number(file[f'{group_path}/field_of_view'][:])
         dataset = file[group_path].create_dataset(dataset_name, data=swath_number)
@@ -221,17 +222,17 @@ def add_swath_number(file: h5py.File, group_path: str) -> None:
         dataset.attrs['comment'] = comment
         file[group_path].attrs['swaths'] = get_n_swaths(swath_number)
 
-    elif file[dataset_path].attrs['last_validated_orbit'] < last_validated_orbit:
+    elif file[dataset_path].attrs['last_validated_orbit'] < orbit <= last_validated_orbit:
         caveat = np.genfromtxt(Path(__file__).resolve().parent / 'swath_caveat.csv', skip_header=1, delimiter=',')
         dataset = file[dataset_path]
-        if orbit in caveat[:, 0]:
-            row_index = np.argmax(caveat[:, 0] == orbit)
-            dataset[:] = determine_swath_number(file[f'{group_path}/field_of_view'][:]) + caveat[row_index, 1]
-            dataset.attrs['last_validated_orbit'] = last_validated_orbit
-            dataset.attrs['comment'] = comment
-            file[group_path].attrs['swaths'] = caveat[row_index, 2]
-        else:
-            dataset.attrs['last_validated_orbit'] = last_validated_orbit
+        row_index = np.argmax(caveat[:, 0] == orbit)
+        record = caveat[row_index]
+        if not np.isnan(record[1]):
+            dataset[:] = determine_swath_number(file[f'{group_path}/field_of_view'][:]) + record[1]
+        if not np.isnan(record[2]):
+            file[group_path].attrs['swaths'] = record[2]
+        dataset.attrs['last_validated_orbit'] = last_validated_orbit
+        dataset.attrs['comment'] = comment
 
 
 def add_relay_classification(file: h5py.File, group_path: str) -> None:
