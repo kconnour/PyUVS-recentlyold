@@ -3,10 +3,9 @@ from pathlib import Path
 
 from astropy.io import fits
 
-
 from _miscellaneous import Orbit, determine_dayside_files
 import _apsis as apsis
-#import _binning as binning
+import _binning as binning
 #import _detector as detector
 import _integration as integration
 #import _pixel_geometry as pixel_geometry
@@ -39,8 +38,9 @@ if __name__ == '__main__':
             # Get some data to work with. For FUV/MUV independent data, just choose whatever channel
             data_files = sorted((data_location / Orbit(orbit).block).glob(f'*{segment}*{Orbit(orbit).code}*muv*.gz'))
             hduls = [fits.open(f) for f in data_files]
+            segment_path = f'{segment}'
 
-            # apsis stuff
+            # Add apsis
             if segment in ['apoapse']:  # can be expanded to periapse here
                 match segment:
                     case 'apoapse':
@@ -58,7 +58,7 @@ if __name__ == '__main__':
                 apsis.add_mars_sun_distance(file, apsis_path)
                 apsis.add_subsolar_subspacecraft_angle(file, apsis_path)
 
-            # integration stuff
+            # Add integration
             integration_path = f'{segment}/integration'
             integration.add_ephemeris_time(file, integration_path, hduls)
             integration.add_field_of_view(file, integration_path, hduls)
@@ -69,45 +69,42 @@ if __name__ == '__main__':
             integration.add_swath_number(file, integration_path)
             integration.add_relay_classification(file, integration_path)
 
-            # spacecraft_geometry stuff
-            '''
+            # Add spacecraft_geometry
             spacecraft_geometry_path = f'{segment}/spacecraft_geometry'
-            spacecraft_geometry.add_sub_spacecraft_latitude(file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_sub_spacecraft_longitude(file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_sub_solar_latitude(file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_sub_solar_longitude(file, spacecraft_geometry_path, hduls)
-            spacecraft_geometry.add_spacecraft_altitude(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_subsolar_latitude(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_subsolar_longitude(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_subspacecraft_latitude(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_subspacecraft_longitude(file, spacecraft_geometry_path, hduls)
+            spacecraft_geometry.add_subspacecraft_altitude(file, spacecraft_geometry_path, hduls)
             spacecraft_geometry.add_instrument_sun_angle(file, spacecraft_geometry_path, hduls)
             spacecraft_geometry.add_spacecraft_velocity_inertial_frame(file, spacecraft_geometry_path, hduls)
             spacecraft_geometry.add_instrument_x_field_of_view(file, spacecraft_geometry_path, hduls)
-            
+
             # Add APP flip
-            spacecraft_geometry.add_app_flip(data_file, spacecraft_geometry_path)
+            spacecraft_geometry.add_app_flip(file, spacecraft_geometry_path, segment_path)
 
             for channel in ['muv']:
                 data_files = sorted((data_location / Orbit(orbit).block).glob(f'*{segment}*{Orbit(orbit).code}*{channel}*.gz'))
                 hduls = [fits.open(f) for f in data_files]
 
-                # muv integration stuff
+                # Add MUV integration
                 integration_channel_path = f'{segment}/{channel}/integration'
-                integration.add_voltage(data_file, integration_channel_path, hduls)
-                integration.add_voltage_gain(data_file, integration_channel_path, hduls)
+                integration.add_voltage(file, integration_channel_path, hduls)
+                integration.add_voltage_gain(file, integration_channel_path, hduls)
                 if segment == 'apoapse' and channel == 'muv':
-                    integration.add_dayside_integrations(data_file, integration_channel_path)
+                    integration.add_dayside_integrations(file, integration_channel_path)
 
                 dayside_files = determine_dayside_files(hduls)
 
                 for daynight in [True, False]:
                     dn = 'dayside' if daynight else 'nightside'
                     daynight_hduls = [f for c, f in enumerate(hduls) if dayside_files[c]==daynight]
-                    if not daynight_hduls:
-                        continue
 
                     # binning stuff
                     binning_path = f'{segment}/{channel}/{dn}/binning'
-                    binning.add_spatial_bin_edges(data_file, binning_path, daynight_hduls)
-                    binning.add_spectral_bin_edges(data_file, binning_path, daynight_hduls)
-
+                    binning.add_spatial_bin_edges(file, binning_path, daynight_hduls)
+                    binning.add_spectral_bin_edges(file, binning_path, daynight_hduls)
+                    '''
                     # detector stuff
                     detector_path = f'{segment}/{channel}/{dn}/detector'
                     detector.add_raw(data_file, detector_path, daynight_hduls)
