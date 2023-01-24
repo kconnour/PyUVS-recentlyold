@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # TODO: spice fails if I try to give this 1 second resolution
     apoapsis_orbits, apoapsis_ephemeris_times = spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1), step_size=60)
 
-    for orbit in range(1, 4000):
+    for orbit in range(3000, 4000):
         print(orbit)
         hdf5_filename = structure.make_hdf5_filename(orbit, save_location)
         file = structure.open_latest_file(hdf5_filename)
@@ -125,7 +125,7 @@ if __name__ == '__main__':
                     pixel_geometry.add_local_time(file, pixel_geometry_path, daynight_hduls, segment_path)
                     pixel_geometry.add_right_ascension(file, pixel_geometry_path, daynight_hduls, segment_path)
                     pixel_geometry.add_declination(file, pixel_geometry_path, daynight_hduls, segment_path)
-                    pixel_geometry.add_pixel_vector(file, pixel_geometry_path, daynight_hduls, segment_path)
+                    #pixel_geometry.add_pixel_vector(file, pixel_geometry_path, daynight_hduls, segment_path)
 
                     if daynight:
                         # retrieval stuff

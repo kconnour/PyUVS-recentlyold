@@ -6,7 +6,7 @@ import numpy as np
 from constants import pixel_angular_size
 from _anc import load_muv_flatfield, load_muv_sensitivity_curve_observational, load_voltage_correction_voltage, load_voltage_correction_coefficients
 from _data_versions import current_dataset_is_up_to_date, get_latest_pipeline_versions, dataset_exists
-from _miscellaneous import make_dataset_path, hdulist
+from _miscellaneous import make_dataset_path, hdulist, add_dimension_if_necessary
 
 
 warnings.filterwarnings('ignore')
@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 def add_raw(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['detector_raw'].data for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['detector_raw'].data, 3) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -45,7 +45,7 @@ def add_raw(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path
 def add_dark_subtracted(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['detector_dark_subtracted'].data for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['detector_dark_subtracted'].data, 3) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:

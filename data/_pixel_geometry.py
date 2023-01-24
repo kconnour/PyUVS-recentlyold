@@ -2,13 +2,13 @@ import h5py
 import numpy as np
 
 from _data_versions import current_dataset_is_up_to_date, get_latest_pipeline_versions, dataset_exists
-from _miscellaneous import make_dataset_path, hdulist
+from _miscellaneous import make_dataset_path, hdulist, add_dimension_if_necessary
 
 
 def add_latitude(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_corner_lat'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_corner_lat'], 3) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -39,7 +39,7 @@ def add_latitude(file: h5py.File, group_path: str, hduls: list[hdulist], segment
 def add_longitude(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_corner_lon'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_corner_lon'], 3) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -70,7 +70,7 @@ def add_longitude(file: h5py.File, group_path: str, hduls: list[hdulist], segmen
 def add_tangent_altitude(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_corner_mrh_alt'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_corner_mrh_alt'], 3) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -101,7 +101,7 @@ def add_tangent_altitude(file: h5py.File, group_path: str, hduls: list[hdulist],
 def add_tangent_altitude_rate(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_corner_mrh_alt_rate'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_corner_mrh_alt_rate'], 3) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -132,7 +132,7 @@ def add_tangent_altitude_rate(file: h5py.File, group_path: str, hduls: list[hdul
 def add_line_of_sight(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_corner_los'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_corner_los'], 3) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -163,7 +163,7 @@ def add_line_of_sight(file: h5py.File, group_path: str, hduls: list[hdulist], se
 def add_solar_zenith_angle(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_solar_zenith_angle'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_solar_zenith_angle'], 2) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -194,7 +194,7 @@ def add_solar_zenith_angle(file: h5py.File, group_path: str, hduls: list[hdulist
 def add_emission_angle(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_emission_angle'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_emission_angle'], 2) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -225,7 +225,7 @@ def add_emission_angle(file: h5py.File, group_path: str, hduls: list[hdulist], s
 def add_phase_angle(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_phase_angle'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_phase_angle'], 2) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -256,7 +256,7 @@ def add_phase_angle(file: h5py.File, group_path: str, hduls: list[hdulist], segm
 def add_zenith_angle(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_phase_angle'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_phase_angle'], 2) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -287,7 +287,7 @@ def add_zenith_angle(file: h5py.File, group_path: str, hduls: list[hdulist], seg
 def add_local_time(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_local_time'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_local_time'], 2) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -318,7 +318,7 @@ def add_local_time(file: h5py.File, group_path: str, hduls: list[hdulist], segme
 def add_right_ascension(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_corner_ra'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_corner_ra'], 3) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -349,7 +349,7 @@ def add_right_ascension(file: h5py.File, group_path: str, hduls: list[hdulist], 
 def add_declination(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_corner_dec'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_corner_dec'], 3) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
@@ -380,7 +380,7 @@ def add_declination(file: h5py.File, group_path: str, hduls: list[hdulist], segm
 def add_pixel_vector(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str) -> None:
     def get_data() -> np.ndarray:
         if hduls:
-            data = np.concatenate([f['pixelgeometry'].data['pixel_vec'] for f in hduls])
+            data = np.concatenate([add_dimension_if_necessary(f['pixelgeometry'].data['pixel_vec'], 4) for f in hduls])
             app_flip = file[f'{segment_path}/app_flip'][:][0]
             data = np.fliplr(data) if app_flip else data
         else:
