@@ -14,12 +14,7 @@ def get_latest_pipeline_versions() -> dict:
 
 
 def current_dataset_is_up_to_date(file: h5py.File, dataset_path: str, latest_version: int) -> bool:
-    return file[dataset_path].attrs['version'] == latest_version
-
-
-def dataset_exists(file: h5py.File, dataset_path: str) -> bool:
     try:
-        file[dataset_path]
-        return True
+        return file[dataset_path].attrs['version'] == latest_version
     except KeyError:
         return False

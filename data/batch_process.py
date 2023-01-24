@@ -3,13 +3,13 @@ from pathlib import Path
 
 from astropy.io import fits
 
-from _miscellaneous import Orbit, determine_dayside_files
+#from _miscellaneous import Orbit, determine_dayside_files
 import _apsis as apsis
-import _binning as binning
-import _detector as detector
-import _integration as integration
-import _pixel_geometry as pixel_geometry
-import _spacecraft_geometry as spacecraft_geometry
+#import _binning as binning
+#import _detector as detector
+#import _integration as integration
+#import _pixel_geometry as pixel_geometry
+#import _spacecraft_geometry as spacecraft_geometry
 import _spice as spice
 import _structure as structure
 
@@ -20,6 +20,8 @@ if __name__ == '__main__':
     spice_location = Path('/media/kyle/iuvs/spice')
     save_location = Path('/media/kyle/iuvs/data')
 
+    # TODO: Guess some basic properties of the orbits
+
     # Get the ephemeris times of apsis
     spice.clear_existing_kernels()
     spice.furnish_standard_kernels(spice_location)
@@ -27,7 +29,7 @@ if __name__ == '__main__':
     # TODO: spice fails if I try to give this 1 second resolution
     apoapsis_orbits, apoapsis_ephemeris_times = spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1), step_size=60)
 
-    for orbit in range(3000, 4000):
+    for orbit in range(1, 100):
         print(orbit)
         hdf5_filename = structure.make_hdf5_filename(orbit, save_location)
         file = structure.open_latest_file(hdf5_filename)
@@ -36,28 +38,29 @@ if __name__ == '__main__':
 
         for segment in ['apoapse']:
             # Get some data to work with. For FUV/MUV independent data, just choose whatever channel
-            data_files = sorted((data_location / Orbit(orbit).block).glob(f'*{segment}*{Orbit(orbit).code}*muv*.gz'))
-            hduls = [fits.open(f) for f in data_files]
+            #data_files = sorted((data_location / Orbit(orbit).block).glob(f'*{segment}*{Orbit(orbit).code}*muv*.gz'))
+            #hduls = [fits.open(f) for f in data_files]
             segment_path = f'{segment}'
 
             # Add apsis
-            if segment in ['apoapse']:  # can be expanded to periapse here
-                match segment:
-                    case 'apoapse':
-                        apsis_ephemeris_times = apoapsis_ephemeris_times
-                apsis_path = f'{segment}/apsis'
-                apsis.add_apsis_ephemeris_time(file, apsis_path, apsis_ephemeris_times)
-                apsis.add_mars_year(file, apsis_path)
-                apsis.add_solar_longitude(file, apsis_path)
-                apsis.add_sol(file, apsis_path)
-                apsis.add_subsolar_latitude(file, apsis_path)
-                apsis.add_subsolar_longitude(file, apsis_path)
-                apsis.add_subspacecraft_latitude(file, apsis_path)
-                apsis.add_subspacecraft_longitude(file, apsis_path)
-                apsis.add_subspacecraft_altitude(file, apsis_path)
-                apsis.add_mars_sun_distance(file, apsis_path)
-                apsis.add_subsolar_subspacecraft_angle(file, apsis_path)
+            match segment:
+                case 'apoapse':
+                    apsis_ephemeris_times = apoapsis_ephemeris_times
+                    apsis_path = f'{segment}/apsis'
+                    apsis.add_apsis_ephemeris_time(file, apsis_path, apsis_ephemeris_times)
+                    apsis.add_mars_year(file, apsis_path)
+                    apsis.add_solar_longitude(file, apsis_path)
+                    apsis.add_sol(file, apsis_path)
+                    apsis.add_subsolar_latitude(file, apsis_path)
+                    apsis.add_subsolar_longitude(file, apsis_path)
+                    apsis.add_subspacecraft_latitude(file, apsis_path)
+                    apsis.add_subspacecraft_longitude(file, apsis_path)
+                    apsis.add_subspacecraft_altitude(file, apsis_path)
+                    apsis.add_mars_sun_distance(file, apsis_path)
+                    apsis.add_subsolar_subspacecraft_angle(file, apsis_path)
 
+        file.close()
+        '''
             # Add integration data
             integration_path = f'{segment}/integration'
             integration.add_ephemeris_time(file, integration_path, hduls)
@@ -132,4 +135,4 @@ if __name__ == '__main__':
                         pass
                     else:
                         # mlr stuff
-                        pass
+                        pass'''

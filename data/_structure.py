@@ -22,30 +22,60 @@ def open_latest_file(filepath: Path) -> h5py.File:
 
 
 def make_empty_hdf5_groups(file: h5py.File) -> None:
-    # This can be expanded to other segments if necessary
-    make_empty_apoapse_groups(file)
-
-
-def make_empty_apoapse_groups(file: h5py.File) -> None:
     # require_group will make it if it doesn't exist. Useful for adding groups in later version
-    apoapse = file.require_group('apoapse')
+    for segment in ['apoapse']:
+        segment_group = file.require_group(segment)
 
-    apoapse.require_group('apsis')
-    apoapse.require_group('integration')
-    apoapse.require_group('spacecraft_geometry')
+        match segment:
+            case 'apoapse':
+                apsis = segment_group.require_group('apsis')
 
-    muv = apoapse.require_group('muv')
+                apsis.require_dataset('ephemeris_time', shape=(1,), dtype='f8', exact=True)
+                apsis.require_dataset('mars_year', shape=(1,), dtype='i2', exact=True)
+                apsis.require_dataset('solar_longitude', shape=(1,), dtype='f8', exact=True)
+                apsis.require_dataset('sol', shape=(1,), dtype='f8', exact=True)
+                apsis.require_dataset('subsolar_latitude', shape=(1,), dtype='f8', exact=True)
+                apsis.require_dataset('subsolar_longitude', shape=(1,), dtype='f8', exact=True)
+                apsis.require_dataset('subspacecraft_latitude', shape=(1,), dtype='f8', exact=True)
+                apsis.require_dataset('subspacecraft_longitude', shape=(1,), dtype='f8', exact=True)
+                apsis.require_dataset('subspacecraft_altitude', shape=(1,), dtype='f8', exact=True)
+                apsis.require_dataset('subspacecraft_local_time', shape=(1,), dtype='f8', exact=True)
+                apsis.require_dataset('mars_sun_distance', shape=(1,), dtype='f8', exact=True)
+                apsis.require_dataset('subsolar_subspacecraft_angle', shape=(1,), dtype='f8', exact=True)
 
-    muv.require_group('integration')
-    dayside = muv.require_group('dayside')
-    nightside = muv.require_group('nightside')
+            case 'periapse':
+                segment_group.require_group('apsis')
 
-    dayside.require_group('binning')
-    dayside.require_group('detector')
-    dayside.require_group('pixel_geometry')
-    dayside.require_group('retrievals')
+        segment_group.require_group('integration')
+        segment_group.require_group('pixel_geometry')
+        segment_group.require_group('spacecraft_geometry')
 
-    nightside.require_group('binning')
-    nightside.require_group('detector')
-    nightside.require_group('pixel_geometry')
-    nightside.require_group('mlr')
+        for channel in ['muv']:
+            channel_group = segment_group.require_group(channel)
+            channel_group.require_group('integration')
+
+            # NOTE: in theory, we can do an experiment in MUV but take FUV data nominally, and vice versa. So the experiments
+            #  should be under the channels
+            for experiment in ['science', 'relay', 'failsafe']:
+                experiment_group = channel_group.require_group(experiment)
+
+                match experiment:
+                    case 'science':
+                        for daynight in ['dayside', 'nightside']:
+                            daynight_group = experiment_group.require_group(daynight)
+                            daynight_group.require_group('binning')
+                            daynight_group.require_group('detector')
+                            daynight_group.require_group('bin_geometry')
+                            match daynight:
+                                case 'dayside':
+                                    daynight_group.require_group('retrievals')
+                                case 'nightside':
+                                    daynight_group.require_group('mlr')
+                    case 'relay':
+                        experiment_group.require_group('binning')
+                        experiment_group.require_group('detector')
+                        experiment_group.require_group('bin_geometry')
+                    case 'failsafe':
+                        experiment_group.require_group('binning')
+                        experiment_group.require_group('detector')
+                        experiment_group.require_group('bin_geometry')
