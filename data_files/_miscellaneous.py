@@ -10,6 +10,12 @@ from _data_versions import get_latest_pipeline_versions, dataset_exists, current
 hdulist: typing.TypeAlias = fits.hdu.hdulist.HDUList
 
 
+def get_opportunity_file_indices(file: h5py.File, integration_path: str):
+    opportunity_integrations = file[f'{integration_path}/opportunity'][:]
+    data_file = file[f'{integration_path}/data_file'][:]
+    return np.unique(data_file[opportunity_integrations])
+
+
 def add_dimension_if_necessary(array: np.ndarray, expected_dims: int) -> np.ndarray:
     return array if np.ndim(array) == expected_dims else array[None, :]
 

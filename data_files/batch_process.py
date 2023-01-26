@@ -6,6 +6,7 @@ import h5py
 
 from _apsis import add_apsis_data_to_file
 from _integration import add_channel_independent_integration_data_to_file, add_channel_dependent_integration_data_to_file
+from _miscellaneous import get_opportunity_file_indices
 from _pixel_geometry import add_pixel_geometry_data_to_file
 from _spacecraft_geometry import add_spacecraft_geometry_data_to_file
 
@@ -78,14 +79,16 @@ if __name__ == '__main__':
                 # Add this channel's specific integration data
                 add_channel_dependent_integration_data_to_file(file, f'{segment}/{channel}/integration', hduls)
 
-                '''for collection in ['opportunity', 'science']:
+                for collection in ['opportunity', 'science']:
                     match collection:
                         case 'opportunity':
-                            # Get the relay data files
-                            relay_path = f'{segment}/{channel}/{collection}'
+                            # Get the opportunity data files
+                            opportunity_path = f'{segment}/{channel}/{collection}'
+                            opportunity_file_indices = get_opportunity_file_indices(file, f'{segment}/integration')
+                            opportunity_hduls = [f for c, f in hduls if c not in opportunity_file_indices]
 
                             # Add binning data
-                            binning_path = f'{relay_path}/binning'
+                            '''binning_path = f'{relay_path}/binning'
                             file.require_group(binning_path)
                             # TODO: binning
 
@@ -96,54 +99,5 @@ if __name__ == '__main__':
 
                             # Add bin geometry data
                             bin_geometry_path = f'{relay_path}/bin_geometry'
-                            file.require_group(bin_geometry_path)
+                            file.require_group(bin_geometry_path)'''
                             # TODO: bin geometry
-
-                            case 'science':
-                            # TODO: get science hduls
-                            for experiment in ['failsafe', 'nominal']:
-                                match experiment:
-                                    case 'failsafe':
-                                        failsafe_path = f'{segment}/{channel}/{collection}/{experiment}'
-
-                                        # Add binning data
-                                        binning_path = f'{failsafe_path}/binning'
-                                        file.require_group(binning_path)
-                                        # TODO: binning
-
-                                        # Add detector data
-                                        detector_path = f'{failsafe_path}/detector'
-                                        file.require_group(detector_path)
-                                        # TODO: detector
-
-                                        # Add bin geometry data
-                                        bin_geometry_path = f'{failsafe_path}/bin_geometry'
-                                        file.require_group(bin_geometry_path)
-                                        # TODO: bin geometry
-
-                                    case 'nominal':
-                                        # TODO: get nominal hduls
-                                        for daynight in ['dayside', 'nightside']:
-                                            # TODO: get daynight hduls
-                                            daynight_path = f'{segment}/{channel}/{collection}/{experiment}/{daynight}'
-
-                                            # Add binning data
-                                            binning_path = f'{daynight_path}/binning'
-                                            file.require_group(binning_path)
-                                            # TODO: binning
-
-                                            # Add detector data
-                                            detector_path = f'{daynight_path}/detector'
-                                            file.require_group(detector_path)
-                                            # TODO: detector
-
-                                            # Add bin geometry data
-                                            bin_geometry_path = f'{daynight_path}/bin_geometry'
-                                            file.require_group(bin_geometry_path)
-                                            # TODO: bin geometry
-
-                                            match daynight:
-                                                case 'dayside':
-                                                    pass
-                                                case 'nightside':
-                                                    pass'''

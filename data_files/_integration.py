@@ -14,6 +14,7 @@ def add_channel_independent_integration_data_to_file(file: h5py.File, integratio
     add_mirror_data_number(file, integration_path, hduls)
     add_case_temperature(file, integration_path, hduls)
     add_integration_time(file, integration_path, hduls)
+    add_data_file(file, integration_path, hduls)
     add_swath_number(file, integration_path)
     add_opportunity_classification(file, integration_path)
 
@@ -86,6 +87,17 @@ def add_integration_time(file: h5py.File, group_path: str, hduls: list[hdulist])
     dataset_name = 'integration_time'
     unit = 'Seconds'
     comment = 'This data is from the observation/int_time structure of the v13 IUVS data.'
+    add_data_to_file(file, get_data, dataset_name, group_path, unit, comment)
+
+
+def add_data_file(file: h5py.File, group_path: str, hduls: list[hdulist]) -> None:
+    def get_data() -> np.ndarray:
+        integrations_per_file = get_integrations_per_file(hduls)
+        return np.concatenate([np.repeat(c, integrations_per_file[c]) for c, f in enumerate(hduls)]) if hduls else np.array([])
+
+    dataset_name = 'data_file'
+    unit = ''
+    comment = 'This is the file index corresponding to each integration.'
     add_data_to_file(file, get_data, dataset_name, group_path, unit, comment)
 
 

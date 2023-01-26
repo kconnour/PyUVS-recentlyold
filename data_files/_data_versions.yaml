@@ -45,6 +45,7 @@ field_of_view: 1
 mirror_data_number: 1
 case_temperature: 1
 integration_time: 1
+data_file: 1
 swath_number: 1
 opportunity: 1
 detector_temperature: 1
