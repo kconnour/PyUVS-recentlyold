@@ -4,7 +4,9 @@ from pathlib import Path
 from astropy.io import fits
 import h5py
 
+from _apsis import add_apsis_data_to_file
 from _integration import add_channel_independent_integration_data_to_file, add_channel_dependent_integration_data_to_file
+from _pixel_geometry import add_pixel_geometry_data_to_file
 from _spacecraft_geometry import add_spacecraft_geometry_data_to_file
 
 
@@ -32,60 +34,41 @@ def open_latest_file(filepath: Path) -> h5py.File:
     return f
 
 
+def create_file(orbit: int) -> h5py.File:
+    hdf5_filename = make_hdf5_filename(orbit, data_file_save_location)
+    file = open_latest_file(hdf5_filename)
+    if 'orbit' not in file.attrs.keys():
+        file.attrs['orbit'] = orbit
+    return file
+
+
 if __name__ == '__main__':
-    # Define paths
     iuvs_fits_file_location = Path('/media/kyle/iuvs/production')
     spice_kernel_location = Path('/media/kyle/iuvs/spice')
     data_file_save_location = Path('/media/kyle/iuvs/data')
 
-    for orbit in range(1, 100):
+    for orbit in range(100, 200):
         print(orbit)
         orbit_block = make_orbit_block(orbit)
         orbit_code = make_orbit_code(orbit)
-        hdf5_filename = make_hdf5_filename(orbit, data_file_save_location)
-        file = open_latest_file(hdf5_filename)
-        file.attrs['orbit'] = orbit
+        file = create_file(orbit)
+        # TODO: if overall data product number is up to date, skip the below to not overwrite it
 
         for segment in ['apoapse']:
-            segment_path = f'{segment}'
-            file.require_group(segment_path)
+            file.require_group(f'{segment}')  # TODO: this seems out of place since the require_group is tucked into other functions elsewhere
 
-            # Add apsis
             match segment:
                 case 'apoapse' | 'periapse':
-                    apsis_path = f'{segment}/apsis'
-                    file.require_group(apsis_path)
-                    # TODO: add ephemeris time
-                    # TODO: add mars year
-                    # TODO: add Ls
-                    # TODO: add sol
-                    # TODO: add subsolar latitude
-                    # TODO: add subsolar longitude
-                    # TODO: add subspacecraft latitude
-                    # TODO: add subspacecraft longitude
-                    # TODO: add subspacecraft altitude
-                    # TODO: add subspacecraft local time
-                    # TODO: add mars sun distance
-                    # TODO: add subsolar subspacecraft angle
+                    add_apsis_data_to_file(file, f'{segment}/apsis', None)
 
-            # Get some data to work with. For FUV/MUV independent data, just choose whatever channel
+            # Get some data to work with. For FUV/MUV independent data, just choose either channel
             data_files = sorted((iuvs_fits_file_location / orbit_block).glob(f'*{segment}*{orbit_code}*muv*.gz'))
             hduls = [fits.open(f) for f in data_files]
 
-            # Add MUV/FUV-independent integration data
-            integration_path = f'{segment}/integration'
-            file.require_group(integration_path)
-            add_channel_independent_integration_data_to_file(file, integration_path, hduls)
-
-            # Add spacecraft geometry data
-            spacecraft_geometry_path = f'{segment}/spacecraft_geometry'
-            file.require_group(spacecraft_geometry_path)
-            add_spacecraft_geometry_data_to_file(file, spacecraft_geometry_path, hduls)
-
-            # Add pixel geometry
-            pixel_geometry_path = f'{segment}/pixel_geometry'
-            file.require_group(pixel_geometry_path)
-            # TODO: add pixel geometry data
+            # Add groups of data and their datasets
+            add_channel_independent_integration_data_to_file(file, f'{segment}/integration', hduls)
+            add_spacecraft_geometry_data_to_file(file, f'{segment}/spacecraft_geometry', f'{segment}', hduls)
+            add_pixel_geometry_data_to_file(file, f'{segment}/pixel_geometry')
 
             for channel in ['muv']:
                 # Get the data files for this channel
@@ -93,11 +76,9 @@ if __name__ == '__main__':
                 hduls = [fits.open(f) for f in data_files]
 
                 # Add this channel's specific integration data
-                integration_channel_path = f'{segment}/{channel}/integration'
-                file.require_group(integration_channel_path)
-                add_channel_dependent_integration_data_to_file(file, integration_channel_path, hduls)
+                add_channel_dependent_integration_data_to_file(file, f'{segment}/{channel}/integration', hduls)
 
-                for collection in ['opportunity', 'science']:
+                '''for collection in ['opportunity', 'science']:
                     match collection:
                         case 'opportunity':
                             # Get the relay data files
@@ -118,7 +99,7 @@ if __name__ == '__main__':
                             file.require_group(bin_geometry_path)
                             # TODO: bin geometry
 
-                        case 'science':
+                            case 'science':
                             # TODO: get science hduls
                             for experiment in ['failsafe', 'nominal']:
                                 match experiment:
@@ -165,4 +146,4 @@ if __name__ == '__main__':
                                                 case 'dayside':
                                                     pass
                                                 case 'nightside':
-                                                    pass
+                                                    pass'''

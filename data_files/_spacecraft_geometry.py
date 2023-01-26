@@ -5,7 +5,8 @@ from _data_versions import current_dataset_is_up_to_date, get_latest_pipeline_ve
 from _miscellaneous import hdulist
 
 
-def add_spacecraft_geometry_data_to_file(file: h5py.File, spacecraft_geometry_path: str, hduls: list[hdulist]) -> None:
+def add_spacecraft_geometry_data_to_file(file: h5py.File, spacecraft_geometry_path: str, segment_path: str, hduls: list[hdulist]) -> None:
+    file.require_group(spacecraft_geometry_path)
     add_subsolar_latitude(file, spacecraft_geometry_path, hduls)
     add_subsolar_longitude(file, spacecraft_geometry_path, hduls)
     add_subspacecraft_latitude(file, spacecraft_geometry_path, hduls)
@@ -14,6 +15,7 @@ def add_spacecraft_geometry_data_to_file(file: h5py.File, spacecraft_geometry_pa
     add_instrument_sun_angle(file, spacecraft_geometry_path, hduls)
     add_spacecraft_velocity_inertial_frame(file, spacecraft_geometry_path, hduls)
     add_instrument_x_field_of_view(file, spacecraft_geometry_path, hduls)
+    add_app_flip(file, spacecraft_geometry_path, segment_path)
 
 
 def add_subsolar_latitude(file: h5py.File, group_path: str, hduls: list[hdulist]) -> None:

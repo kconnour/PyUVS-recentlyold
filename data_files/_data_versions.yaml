@@ -1,4 +1,5 @@
 # Overall data product number
+data_product: 1
 
 # apsis
 apsis_ephemeris_time: 1
@@ -14,6 +15,21 @@ apsis_subspacecraft_local_time: 1
 apsis_mars_sun_distance: 1
 apsis_subsolar_subspacecraft_angle: 1
 
+# bin_geometry
+bin_latitude: 1
+bin_longitude: 1
+bin_tangent_altitude: 1
+bin_tangent_altitude_rate: 1
+bin_line_of_sight: 1
+bin_solar_zenith_angle: 1
+bin_emission_angle: 1
+bin_phase_angle: 1
+bin_zenith_angle: 1
+bin_local_time: 1
+bin_right_ascension: 1
+bin_declination: 1
+bin_vector: 1
+
 # binning
 spatial_bin_edges: 1
 spectral_bin_edges: 1
@@ -27,28 +43,24 @@ brightness: 1
 ephemeris_time: 1
 field_of_view: 1
 mirror_data_number: 1
-detector_temperature: 1
 case_temperature: 1
 integration_time: 1
-last_validated_orbit: 0
-relay: 1
-dayside: 1
+swath_number: 1
+opportunity: 1
+detector_temperature: 1
 voltage: 1
 voltage_gain: 1
+dayside: 1
 
 # pixel_geometry
-latitude: 1
-longitude: 1
-tangent_altitude: 1
-tangent_altitude_rate: 1
-line_of_sight: 1
-solar_zenith_angle: 1
-emission_angle: 1
-phase_angle: 1
-zenith_angle: 1
-local_time: 1
-right_ascension: 1
-declination: 1
+pixel_latitude: 1
+pixel_longitude: 1
+pixel_tangent_altitude: 1
+pixel_solar_zenith_angle: 1
+pixel_emission_angle: 1
+pixel_phase_angle: 1
+pixel_zenith_angle: 1
+pixel_local_time: 1
 pixel_vector: 1
 
 # spacecraft_geometry
