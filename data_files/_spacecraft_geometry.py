@@ -1,11 +1,8 @@
-from astropy.io import fits
 import h5py
 import numpy as np
 
 from _data_versions import current_dataset_is_up_to_date, get_latest_pipeline_versions, dataset_exists
-
-
-hdulist = fits.hdu.hdulist.HDUList
+from _miscellaneous import hdulist
 
 
 def add_spacecraft_geometry_data_to_file(file: h5py.File, spacecraft_geometry_path: str, hduls: list[hdulist]) -> None:

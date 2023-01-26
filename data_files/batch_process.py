@@ -4,6 +4,7 @@ from pathlib import Path
 from astropy.io import fits
 import h5py
 
+from _integration import add_channel_independent_integration_data_to_file, add_channel_dependent_integration_data_to_file
 from _spacecraft_geometry import add_spacecraft_geometry_data_to_file
 
 
@@ -74,14 +75,7 @@ if __name__ == '__main__':
             # Add MUV/FUV-independent integration data
             integration_path = f'{segment}/integration'
             file.require_group(integration_path)
-            # TODO: add timestamp
-            # TODO: add ephemeris time
-            # TODO: add mirror DN
-            # TODO: add field of view
-            # TODO: add case temperature
-            # TODO: add integration time
-            # TODO: add swath number
-            # TODO: add relay classification
+            add_channel_independent_integration_data_to_file(file, integration_path, hduls)
 
             # Add spacecraft geometry data
             spacecraft_geometry_path = f'{segment}/spacecraft_geometry'
@@ -100,11 +94,8 @@ if __name__ == '__main__':
 
                 # Add this channel's specific integration data
                 integration_channel_path = f'{segment}/{channel}/integration'
-
                 file.require_group(integration_channel_path)
-                # TODO: add detector temperature
-                # TODO: add voltage
-                # TODO: add voltage gain
+                add_channel_dependent_integration_data_to_file(file, integration_channel_path, hduls)
 
                 for collection in ['opportunity', 'science']:
                     match collection:
