@@ -5,8 +5,9 @@ from astropy.io import fits
 import h5py
 
 from _apsis import add_apsis_data_to_file
+from _binning import add_binning_data_to_file
 from _integration import add_channel_independent_integration_data_to_file, add_channel_dependent_integration_data_to_file
-from _miscellaneous import get_opportunity_file_indices
+from _miscellaneous import get_opportunity_file_indices, get_failsafe_file_indices, get_dayside_file_indices
 from _pixel_geometry import add_pixel_geometry_data_to_file
 from _spacecraft_geometry import add_spacecraft_geometry_data_to_file
 
@@ -48,7 +49,7 @@ if __name__ == '__main__':
     spice_kernel_location = Path('/media/kyle/iuvs/spice')
     data_file_save_location = Path('/media/kyle/iuvs/data')
 
-    for orbit in range(100, 200):
+    for orbit in range(5495, 5496):
         print(orbit)
         orbit_block = make_orbit_block(orbit)
         orbit_code = make_orbit_code(orbit)
@@ -73,31 +74,59 @@ if __name__ == '__main__':
 
             for channel in ['muv']:
                 # Get the data files for this channel
-                data_files = sorted((iuvs_fits_file_location / orbit_block).glob(f'*{segment}*{orbit_code}*{channel}*.gz'))
-                hduls = [fits.open(f) for f in data_files]
+                channel_data_files = sorted((iuvs_fits_file_location / orbit_block).glob(f'*{segment}*{orbit_code}*{channel}*.gz'))
+                channel_hduls = [fits.open(f) for f in channel_data_files]
 
                 # Add this channel's specific integration data
-                add_channel_dependent_integration_data_to_file(file, f'{segment}/{channel}/integration', hduls)
+                add_channel_dependent_integration_data_to_file(file, f'{segment}/{channel}/integration', channel_hduls)
 
                 for collection in ['opportunity', 'science']:
                     match collection:
                         case 'opportunity':
                             # Get the opportunity data files
-                            opportunity_path = f'{segment}/{channel}/{collection}'
                             opportunity_file_indices = get_opportunity_file_indices(file, f'{segment}/integration')
-                            opportunity_hduls = [f for c, f in hduls if c not in opportunity_file_indices]
+                            opportunity_hduls = [f for c, f in enumerate(channel_hduls) if c in opportunity_file_indices]
 
-                            # Add binning data
-                            '''binning_path = f'{relay_path}/binning'
-                            file.require_group(binning_path)
-                            # TODO: binning
-
-                            # Add detector data
-                            detector_path = f'{relay_path}/detector'
-                            file.require_group(detector_path)
+                            # Add groups of data and their datasets
+                            opportunity_path = f'{segment}/{channel}/{collection}'
+                            add_binning_data_to_file(file, f'{opportunity_path}/binning', opportunity_hduls)
                             # TODO: detector
-
-                            # Add bin geometry data
-                            bin_geometry_path = f'{relay_path}/bin_geometry'
-                            file.require_group(bin_geometry_path)'''
                             # TODO: bin geometry
+
+                        case 'science':
+                            science_hduls = [f for f in channel_hduls if f not in opportunity_hduls]
+                            for experiment in ['failsafe', 'nominal']:
+                                match experiment:
+                                    case 'failsafe':
+                                        # Get the failsafe data files
+                                        failsafe_file_indices = get_failsafe_file_indices(file, f'{segment}/integration', f'{segment}/{channel}/integration')
+                                        failsafe_hduls = [f for c, f in enumerate(channel_hduls) if c in failsafe_file_indices and f in science_hduls]
+
+                                        # Add groups of data and their datasets
+                                        experiment_path = f'{segment}/{channel}/{collection}/{experiment}'
+                                        add_binning_data_to_file(file, f'{experiment_path}/binning', failsafe_hduls)
+                                        # TODO: detector
+                                        # TODO: bin geometry
+
+                                    case 'nominal':
+                                        nominal_hduls = [f for f in channel_hduls if f not in failsafe_hduls and f not in opportunity_hduls]
+                                        for daynight in ['dayside', 'nightside']:
+                                            experiment_path = f'{segment}/{channel}/{collection}/{experiment}/{daynight}'
+                                            match daynight:
+                                                case 'dayside':
+                                                    # Get the dayside data files
+                                                    dayside_file_indices = get_dayside_file_indices(file, f'{segment}/integration', f'{segment}/{channel}/integration')
+                                                    dayside_hduls = [f for c, f in enumerate(channel_hduls) if c in dayside_file_indices and f in nominal_hduls]
+
+                                                    # Add groups of data and their datasets
+                                                    add_binning_data_to_file(file, f'{experiment_path}/binning', dayside_hduls)
+                                                    # TODO: detector
+                                                    # TODO: bin geometry
+
+                                                case 'nightside':
+                                                    nightside_hduls = [f for f in nominal_hduls if f not in dayside_hduls]
+
+                                                    # Add groups of data and their datasets
+                                                    add_binning_data_to_file(file, f'{experiment_path}/binning', nightside_hduls)
+                                                    # TODO: detector
+                                                    # TODO: bin geometry
