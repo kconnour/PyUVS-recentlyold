@@ -48,10 +48,13 @@ integration_time: 1
 data_file: 1
 swath_number: 1
 opportunity: 1
+
 detector_temperature: 1
 voltage: 1
 voltage_gain: 1
+failsafe: 1
 dayside: 1
+nightside: 1
 
 # pixel_geometry
 pixel_latitude: 1

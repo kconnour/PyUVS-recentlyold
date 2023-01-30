@@ -16,20 +16,20 @@ def add_ephemeris_time(file: h5py.File, group_path: str, hduls: list[hdulist]) -
     dataset_name = 'ephemeris_time'
     dataset_version_name = f'{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
+    latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
     unit = 'Seconds since J2000'
     comment = 'This data is taken from the integration/et structure of the v13 IUVS data.'
 
     if not dataset_exists(file, dataset_path):
         dataset = file[group_path].create_dataset(dataset_name, data=get_data())
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
@@ -41,21 +41,21 @@ def add_field_of_view(file: h5py.File, group_path: str, hduls: list[hdulist]) ->
     dataset_name = 'field_of_view'
     dataset_version_name = f'{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
+    latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
     unit = 'Degrees'
     comment = 'This data is taken from the integration/fov_deg structure of the v13 IUVS data. ' \
               'The field of view is simply double the mirror angle.'
 
     if not dataset_exists(file, dataset_path):
         dataset = file[group_path].create_dataset(dataset_name, data=get_data())
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
@@ -67,20 +67,20 @@ def add_mirror_data_number(file: h5py.File, group_path: str, hduls: list[hdulist
     dataset_name = 'mirror_data_number'
     dataset_version_name = f'{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
+    latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
     unit = 'DN'
     comment = 'This data is taken from the integration/mirror_dn structure of the v13 IUVS data.'
 
     if not dataset_exists(file, dataset_path):
         dataset = file[group_path].create_dataset(dataset_name, data=get_data())
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
@@ -92,20 +92,20 @@ def add_detector_temperature(file: h5py.File, group_path: str, hduls: list[hduli
     dataset_name = 'detector_temperature'
     dataset_version_name = f'{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
+    latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
     unit = 'Degrees C'
     comment = 'This data is taken from the integration/det_temp_c structure of the v13 IUVS data.'
 
     if not dataset_exists(file, dataset_path):
         dataset = file[group_path].create_dataset(dataset_name, data=get_data())
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
@@ -117,20 +117,20 @@ def add_case_temperature(file: h5py.File, group_path: str, hduls: list[hdulist])
     dataset_name = 'case_temperature'
     dataset_version_name = f'{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
+    latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
     unit = 'Degrees C'
     comment = 'This data is taken from the integration/case_temp_c structure of the v13 IUVS data.'
 
     if not dataset_exists(file, dataset_path):
         dataset = file[group_path].create_dataset(dataset_name, data=get_data())
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
@@ -143,20 +143,20 @@ def add_integration_time(file: h5py.File, group_path: str, hduls: list[hdulist])
     dataset_name = 'integration_time'
     dataset_version_name = f'{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
+    latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
     unit = 'Seconds'
     comment = 'This data is from the observation/int_time structure of the v13 IUVS data.'
 
     if not dataset_exists(file, dataset_path):
         dataset = file[group_path].create_dataset(dataset_name, data=get_data())
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
@@ -250,18 +250,18 @@ def add_relay_classification(file: h5py.File, group_path: str) -> None:
     dataset_name = 'relay'
     dataset_version_name = f'{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
+    latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
     comment = 'True if the integration is part of a relay swath; False otherwise.'
 
     if not dataset_exists(file, dataset_path):
         dataset = file[group_path].create_dataset(dataset_name, data=get_data())
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['comment'] = comment
 
 
@@ -273,20 +273,20 @@ def add_voltage(file: h5py.File, group_path: str, hduls: list[hdulist]) -> None:
     dataset_name = 'voltage'
     dataset_version_name = f'{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
+    latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
     unit = 'Volts'
     comment = 'This data is taken from the observation/mcp_volt structure of the v13 IUVS data.'
 
     if not dataset_exists(file, dataset_path):
         dataset = file[group_path].create_dataset(dataset_name, data=get_data())
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
@@ -299,20 +299,20 @@ def add_voltage_gain(file: h5py.File, group_path: str, hduls: list[hdulist]) -> 
     dataset_name = 'voltage_gain'
     dataset_version_name = f'{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
+    latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
     unit = 'Volts'
     comment = 'This data is taken from the observation/mcp_gain structure of the v13 IUVS data.'
 
     if not dataset_exists(file, dataset_path):
         dataset = file[group_path].create_dataset(dataset_name, data=get_data())
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
@@ -325,16 +325,16 @@ def add_dayside_integrations(file: h5py.File, group_path: str) -> None:
     dataset_name = 'dayside'
     dataset_version_name = f'{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
+    latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
     comment = 'True if dayside; False if nightside. Derived from engineering settings of observation/mcp_gain'
 
     if not dataset_exists(file, dataset_path):
         dataset = file[group_path].create_dataset(dataset_name, data=get_data())
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+    elif not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
-        dataset.attrs['version'] = latest_version
+        dataset.attrs['version'] = latest_pipeline_version
         dataset.attrs['comment'] = comment

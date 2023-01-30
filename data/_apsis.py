@@ -3,7 +3,7 @@ import mer
 import numpy as np
 import spiceypy
 
-from _data_versions import current_dataset_is_up_to_date, get_latest_pipeline_versions
+from _data_versions import current_dataset_is_up_to_date, get_latest_pipeline_versions, dataset_exists
 from _miscellaneous import make_dataset_path, haversine
 import _spice as spice
 
@@ -17,13 +17,21 @@ def add_apsis_ephemeris_time(file: h5py.File, group_path: str, ephemeris_times: 
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'Seconds since J2000'
+    comment = 'Computed with SPICE with 1 minute step sizes.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'Seconds since J2000'
-        dataset.attrs['comment'] = 'Computed with SPICE with 1 minute step sizes.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_mars_year(file: h5py.File, group_path: str) -> None:
@@ -36,14 +44,22 @@ def add_mars_year(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'Years'
+    comment = 'Created by computing the apsis ephemeris time with SPICE ' \
+              'then converting the ephemeris time to Mars year via mer.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'Years'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE ' \
-              'then converting the ephemeris time to Mars year via mer.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_solar_longitude(file: h5py.File, group_path: str) -> None:
@@ -55,14 +71,22 @@ def add_solar_longitude(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'Degrees'
+    comment = 'Created by computing the apsis ephemeris time with SPICE ' \
+              'then converting the ephemeris time to solar longitude via SPICE.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'Degrees'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE ' \
-              'then converting the ephemeris time to solar longitude via SPICE.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_sol(file: h5py.File, group_path: str) -> None:
@@ -75,14 +99,22 @@ def add_sol(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'Day of the year'
+    comment = 'Created by computing the apsis ephemeris time with SPICE ' \
+              'then converting the ephemeris time to sol via mer.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'Day of the year'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE ' \
-              'then converting the ephemeris time to sol via mer.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_subsolar_latitude(file: h5py.File, group_path: str) -> None:
@@ -94,14 +126,22 @@ def add_subsolar_latitude(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'Degrees [N]'
+    comment = 'Created by computing the apsis ephemeris time with SPICE ' \
+              'then converting the ephemeris time to the subsolar point via SPICE.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'Degrees [N]'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE ' \
-              'then converting the ephemeris time to the subsolar point via SPICE.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_subsolar_longitude(file: h5py.File, group_path: str) -> None:
@@ -113,14 +153,22 @@ def add_subsolar_longitude(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'Degrees [E]'
+    comment = 'Created by computing the apsis ephemeris time with SPICE ' \
+              'then converting the ephemeris time to the subsolar point via SPICE.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'Degrees [E]'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE ' \
-              'then converting the ephemeris time to the subsolar point via SPICE.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_subspacecraft_latitude(file: h5py.File, group_path: str) -> None:
@@ -132,14 +180,22 @@ def add_subspacecraft_latitude(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'Degrees [N]'
+    comment = 'Created by computing the apsis ephemeris time with SPICE ' \
+              'then converting the ephemeris time to the subspacecraft point via SPICE.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'Degrees [N]'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE ' \
-              'then converting the ephemeris time to the subspacecraft point via SPICE.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_subspacecraft_longitude(file: h5py.File, group_path: str) -> None:
@@ -151,14 +207,22 @@ def add_subspacecraft_longitude(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'Degrees [E]'
+    comment = 'Created by computing the apsis ephemeris time with SPICE ' \
+              'then converting the ephemeris time to the subspacecraft point via SPICE.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'Degrees [E]'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE ' \
-              'then converting the ephemeris time to the subspacecraft point via SPICE.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_subspacecraft_altitude(file: h5py.File, group_path: str) -> None:
@@ -170,14 +234,22 @@ def add_subspacecraft_altitude(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'km'
+    comment = 'Created by computing the apsis ephemeris time with SPICE ' \
+              'then converting the ephemeris time to the subspacecraft point via SPICE.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'km'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE ' \
-              'then converting the ephemeris time to the subspacecraft point via SPICE.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_subspacecraft_local_time(file: h5py.File, group_path: str) -> None:
@@ -190,14 +262,22 @@ def add_subspacecraft_local_time(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'Hours'
+    comment = 'Created by computing the apsis ephemeris time with SPICE ' \
+              'then converting the ephemeris time to the subspacecraft point via SPICE.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'Hours'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE ' \
-              'then converting the ephemeris time to the subspacecraft point via SPICE.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_mars_sun_distance(file: h5py.File, group_path: str) -> None:
@@ -209,14 +289,22 @@ def add_mars_sun_distance(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'km'
+    comment = 'Created by computing the apsis ephemeris time with SPICE ' \
+              'then converting the ephemeris time to the Mars-sun distance via SPICE.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'km'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE ' \
-              'then converting the ephemeris time to the Mars-sun distance via SPICE.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
 
 def add_subsolar_subspacecraft_angle(file: h5py.File, group_path: str) -> None:
@@ -231,12 +319,20 @@ def add_subsolar_subspacecraft_angle(file: h5py.File, group_path: str) -> None:
     dataset_version_name = f'apsis_{dataset_name}'
     dataset_path = make_dataset_path(group_path, dataset_name)
     latest_pipeline_version = get_latest_pipeline_versions()[dataset_version_name]
+    unit = 'Degrees'
+    comment = 'Created by computing the apsis ephemeris time with SPICE, ' \
+              'computing the subsolar and subspacecraft points at that ephemeris time,' \
+              'and finally computing the haversine of those points.'
+
+    if not dataset_exists(file, dataset_path):
+        dataset = file[group_path].create_dataset(dataset_name, data=get_data())
+        dataset.attrs['version'] = latest_pipeline_version
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment
 
     if not current_dataset_is_up_to_date(file, dataset_path, latest_pipeline_version):
         dataset = file[dataset_path]
         dataset[:] = get_data()
         dataset.attrs['version'] = latest_pipeline_version
-        dataset.attrs['unit'] = 'Degrees'
-        dataset.attrs['comment'] = 'Created by computing the apsis ephemeris time with SPICE, ' \
-              'computing the subsolar and subspacecraft points at that ephemeris time,' \
-              'and finally computing the haversine of those points.'
+        dataset.attrs['unit'] = unit
+        dataset.attrs['comment'] = comment

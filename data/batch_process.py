@@ -2,16 +2,33 @@ from datetime import datetime
 from pathlib import Path
 
 from astropy.io import fits
+import h5py
+import numpy as np
 
-#from _miscellaneous import Orbit, determine_dayside_files
+from _miscellaneous import Orbit, determine_dayside_files
 import _apsis as apsis
-#import _binning as binning
-#import _detector as detector
-#import _integration as integration
-#import _pixel_geometry as pixel_geometry
-#import _spacecraft_geometry as spacecraft_geometry
+import _bin_geometry as bin_geometry
+import _binning as binning
+import _detector as detector
+import _integration as integration
+import _spacecraft_geometry as spacecraft_geometry
 import _spice as spice
-import _structure as structure
+
+
+def make_hdf5_filename(orbit: int, save_location: Path) -> Path:
+    orbit = Orbit(orbit)
+    filename = f'{orbit.code}.hdf5'
+    return save_location / orbit.block / filename
+
+
+def open_latest_file(filepath: Path) -> h5py.File:
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        f = h5py.File(filepath, mode='x')  # 'x' means to create the file but fail if it already exists
+    except FileExistsError:
+        f = h5py.File(filepath, mode='r+')  # 'r+' means read/write and file must exist
+    return f
 
 
 if __name__ == '__main__':
@@ -20,34 +37,29 @@ if __name__ == '__main__':
     spice_location = Path('/media/kyle/iuvs/spice')
     save_location = Path('/media/kyle/iuvs/data')
 
-    # TODO: Guess some basic properties of the orbits
-
     # Get the ephemeris times of apsis
     spice.clear_existing_kernels()
     spice.furnish_standard_kernels(spice_location)
     # TODO: See if I can compute the latest datetime of the kernels I have and use that
-    # TODO: spice fails if I try to give this 1 second resolution
+    # TODO: spice fails if I try to give this 1 second resolution. solution: get the approximate ephemeris time, then do a targeted search near each one +- 1 min
     apoapsis_orbits, apoapsis_ephemeris_times = spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1), step_size=60)
 
     for orbit in range(1, 100):
         print(orbit)
-        hdf5_filename = structure.make_hdf5_filename(orbit, save_location)
-        file = structure.open_latest_file(hdf5_filename)
-        structure.make_empty_hdf5_groups(file)
+        hdf5_filename = make_hdf5_filename(orbit, save_location)
+        file = open_latest_file(hdf5_filename)
         file.attrs['orbit'] = orbit
 
         for segment in ['apoapse']:
-            # Get some data to work with. For FUV/MUV independent data, just choose whatever channel
-            #data_files = sorted((data_location / Orbit(orbit).block).glob(f'*{segment}*{Orbit(orbit).code}*muv*.gz'))
-            #hduls = [fits.open(f) for f in data_files]
             segment_path = f'{segment}'
+            file.require_group(segment_path)
 
             # Add apsis
             match segment:
                 case 'apoapse':
-                    apsis_ephemeris_times = apoapsis_ephemeris_times
                     apsis_path = f'{segment}/apsis'
-                    apsis.add_apsis_ephemeris_time(file, apsis_path, apsis_ephemeris_times)
+                    file.require_group(apsis_path)
+                    apsis.add_apsis_ephemeris_time(file, apsis_path, apoapsis_ephemeris_times)
                     apsis.add_mars_year(file, apsis_path)
                     apsis.add_solar_longitude(file, apsis_path)
                     apsis.add_sol(file, apsis_path)
@@ -59,10 +71,13 @@ if __name__ == '__main__':
                     apsis.add_mars_sun_distance(file, apsis_path)
                     apsis.add_subsolar_subspacecraft_angle(file, apsis_path)
 
-        file.close()
-        '''
-            # Add integration data
+            # Get some data to work with. For FUV/MUV independent data, just choose whatever channel
+            data_files = sorted((data_location / Orbit(orbit).block).glob(f'*{segment}*{Orbit(orbit).code}*muv*.gz'))
+            hduls = [fits.open(f) for f in data_files]
+
+            # Add MUV/FUV-independent integration data
             integration_path = f'{segment}/integration'
+            file.require_group(integration_path)
             integration.add_ephemeris_time(file, integration_path, hduls)
             integration.add_field_of_view(file, integration_path, hduls)
             integration.add_mirror_data_number(file, integration_path, hduls)
@@ -74,6 +89,7 @@ if __name__ == '__main__':
 
             # Add spacecraft geometry data
             spacecraft_geometry_path = f'{segment}/spacecraft_geometry'
+            file.require_group(spacecraft_geometry_path)
             spacecraft_geometry.add_subsolar_latitude(file, spacecraft_geometry_path, hduls)
             spacecraft_geometry.add_subsolar_longitude(file, spacecraft_geometry_path, hduls)
             spacecraft_geometry.add_subspacecraft_latitude(file, spacecraft_geometry_path, hduls)
@@ -92,8 +108,96 @@ if __name__ == '__main__':
 
                 # Add MUV integration data
                 integration_channel_path = f'{segment}/{channel}/integration'
+
+                file.require_group(integration_channel_path)
                 integration.add_voltage(file, integration_channel_path, hduls)
                 integration.add_voltage_gain(file, integration_channel_path, hduls)
+
+                for collection in ['relay', 'science']:
+                    match collection:
+                        case 'relay':
+                            # Get the relay data files
+                            relay_path = f'{segment}/{channel}/{collection}'
+                            is_relay = file[f'{integration_path}/relay']
+                            relay_ephemeris_time = file[f'{integration_path}/ephemeris_time'][is_relay]
+                            relay_hduls = [f for f in hduls if np.all(f['integration'].data['et']) in relay_ephemeris_time]
+
+                            # Add binning data
+                            binning_path = f'{relay_path}/binning'
+                            file.require_group(binning_path)
+                            binning.add_spatial_bin_edges(file, binning_path, relay_hduls)
+                            binning.add_spectral_bin_edges(file, binning_path, relay_hduls)
+
+                            # Add detector data
+                            detector_path = f'{relay_path}/detector'
+                            file.require_group(detector_path)
+                            detector.add_raw(file, detector_path, relay_hduls, segment_path)
+                            detector.add_dark_subtracted(file, detector_path, relay_hduls, segment_path)
+                            detector.add_brightness(file, detector_path, relay_hduls, segment_path, binning_path, integration_path, integration_channel_path)
+
+                            # Add bin geometry data
+                            bin_geometry_path = f'{relay_path}/bin_geometry'
+                            file.require_group(bin_geometry_path)
+                            bin_geometry.add_latitude(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_longitude(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_tangent_altitude(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_tangent_altitude_rate(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_line_of_sight(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_solar_zenith_angle(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_emission_angle(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_phase_angle(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_zenith_angle(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_local_time(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_right_ascension(file, bin_geometry_path, relay_hduls, segment_path)
+                            bin_geometry.add_declination(file, bin_geometry_path, relay_hduls, segment_path)
+                            # pixel_geometry.add_pixel_vector(file, pixel_geometry_path, daynight_hduls, segment_path)
+
+                        case 'science':
+                            for experiment in ['failsafe', 'nominal']:
+                                science_hduls = [f for f in hduls if f not in relay_hduls]
+                                match experiment:
+                                    case 'failsafe':
+                                        failsafe_path = f'{segment}/{channel}/{collection}/{experiment}'
+                                        failsafe_hduls = [f for f in science_hduls if f['observation'].data['mcp_volt'][0] == 497.64]
+
+                                        # Add binning data
+                                        binning_path = f'{failsafe_path}/binning'
+                                        file.require_group(binning_path)
+                                        binning.add_spatial_bin_edges(file, binning_path, failsafe_hduls)
+                                        binning.add_spectral_bin_edges(file, binning_path, failsafe_hduls)
+
+                                        # Add detector data
+                                        detector_path = f'{failsafe_path}/detector'
+                                        file.require_group(detector_path)
+                                        detector.add_raw(file, detector_path, failsafe_hduls, segment_path)
+                                        detector.add_dark_subtracted(file, detector_path, failsafe_hduls, segment_path)
+                                        detector.add_brightness(file, detector_path, failsafe_hduls, segment_path, binning_path, integration_path, integration_channel_path)
+
+                                        # Add bin geometry data
+                                        bin_geometry_path = f'{failsafe_path}/bin_geometry'
+                                        file.require_group(bin_geometry_path)
+                                        bin_geometry.add_latitude(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_longitude(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_tangent_altitude(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_tangent_altitude_rate(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_line_of_sight(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_solar_zenith_angle(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_emission_angle(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_phase_angle(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_zenith_angle(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_local_time(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_right_ascension(file, bin_geometry_path, failsafe_hduls, segment_path)
+                                        bin_geometry.add_declination(file, bin_geometry_path, failsafe_hduls, segment_path)
+
+                                    case 'nominal':
+                                        nominal_path = f'{segment}/{channel}/{collection}/{experiment}'
+                                        nominal_hduls = [f for f in science_hduls if f not in relay_hduls]
+
+                                        dayside_files = determine_dayside_files(nominal_hduls)
+
+
+                '''
+
                 if segment == 'apoapse' and channel == 'muv':
                     integration.add_dayside_integrations(file, integration_channel_path)
 

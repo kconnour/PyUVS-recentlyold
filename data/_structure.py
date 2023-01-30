@@ -30,7 +30,6 @@ def make_empty_hdf5_groups(file: h5py.File) -> None:
             case 'apoapse':
                 apsis = segment_group.require_group('apsis')
 
-                apsis.require_dataset('ephemeris_time', shape=(1,), dtype='f8', exact=True)
                 apsis.require_dataset('mars_year', shape=(1,), dtype='i2', exact=True)
                 apsis.require_dataset('solar_longitude', shape=(1,), dtype='f8', exact=True)
                 apsis.require_dataset('sol', shape=(1,), dtype='f8', exact=True)

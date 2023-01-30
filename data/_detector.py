@@ -72,7 +72,7 @@ def add_dark_subtracted(file: h5py.File, group_path: str, hduls: list[hdulist], 
         dataset.attrs['comment'] = comment
 
 
-def add_brightness(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str, binning_path: str, time_path: str, voltage_path: str, daynight: bool) -> None:
+def add_brightness(file: h5py.File, group_path: str, hduls: list[hdulist], segment_path: str, binning_path: str, time_path: str, voltage_path: str, daynight: bool = None) -> None:
     def make_flatfield(
             spatial_bin_edges: np.ndarray,
             spectral_bin_edges: np.ndarray) -> np.ndarray:
@@ -146,8 +146,6 @@ def add_brightness(file: h5py.File, group_path: str, hduls: list[hdulist], segme
 
     def get_data() -> np.ndarray:
         if hduls:
-            daynight_integrations = file[f'{voltage_path}/dayside'][:] == daynight
-
             detector_dark_subtracted = file[f'{group_path}/dark_subtracted'][:]
             spatial_bin_edges_ds = file[f'{binning_path}/spatial_bin_edges']
             spatial_bin_edges = spatial_bin_edges_ds[:]
@@ -155,9 +153,15 @@ def add_brightness(file: h5py.File, group_path: str, hduls: list[hdulist], segme
             spectral_bin_edges_ds = file[f'{binning_path}/spectral_bin_edges']
             spectral_bin_edges = spectral_bin_edges_ds[:]
             spectral_bin_width = spectral_bin_edges_ds.attrs['width']
-            integration_time = file[f'{time_path}/integration_time'][:][daynight_integrations]
-            voltage = file[f'{voltage_path}/voltage'][:][daynight_integrations]
-            voltage_gain = file[f'{voltage_path}/voltage_gain'][:][daynight_integrations]
+            if daynight is not None:
+                daynight_integrations = file[f'{voltage_path}/dayside'][:] == daynight
+                integration_time = file[f'{time_path}/integration_time'][:][daynight_integrations]
+                voltage = file[f'{voltage_path}/voltage'][:][daynight_integrations]
+                voltage_gain = file[f'{voltage_path}/voltage_gain'][:][daynight_integrations]
+            else:
+                integration_time = file[f'{time_path}/integration_time'][:]
+                voltage = file[f'{voltage_path}/voltage'][:]
+                voltage_gain = file[f'{voltage_path}/voltage_gain'][:]
 
             flatfield = make_flatfield(spatial_bin_edges, spectral_bin_edges)
             sensitivity_curve = load_muv_sensitivity_curve_observational()[:, 1]

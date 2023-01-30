@@ -3,11 +3,20 @@ import warnings
 import h5py
 import numpy as np
 
-from _data_versions import current_dataset_is_up_to_date, get_latest_pipeline_versions, dataset_exists
-from _miscellaneous import make_dataset_path, hdulist, compression, compression_opts
+from pyuvs.typing import hdulist
+from pyuvs.data_versions import current_dataset_is_up_to_date, get_latest_pipeline_versions, dataset_exists
 
 
-def add_spatial_bin_edges(file: h5py.File, group_path: str, hduls: list[hdulist]) -> None:
+compression = 'gzip'
+compression_opts = 4
+
+
+def add_binning_data_to_file(file: h5py.File, binning_path: str, hduls: hdulist) -> None:
+    add_spatial_bin_edges(file, binning_path, hduls)
+    add_spectral_bin_edges(file, binning_path, hduls)
+
+
+def add_spatial_bin_edges(file: h5py.File, group_path: str, hduls: hdulist) -> None:
     def get_data() -> np.ndarray:
         # All files should have the same spatial binning, so just get the first file's info
         return np.append(hduls[0]['binning'].data['spapixlo'][0], hduls[0]['binning'].data['spapixhi'][0, -1] + 1) if hduls else np.array([])
@@ -23,7 +32,7 @@ def add_spatial_bin_edges(file: h5py.File, group_path: str, hduls: list[hdulist]
 
     dataset_name = 'spatial_bin_edges'
     dataset_version_name = f'{dataset_name}'
-    dataset_path = make_dataset_path(group_path, dataset_name)
+    dataset_path = f'{group_path}/{dataset_name}'
     latest_version = get_latest_pipeline_versions()[dataset_version_name]
     unit = 'bin number'
     comment = 'This data is taken from the binning/spapixlo and spapixhi structure of the v13 IUVS data.'
@@ -46,7 +55,7 @@ def add_spatial_bin_edges(file: h5py.File, group_path: str, hduls: list[hdulist]
         dataset.attrs['comment'] = comment
 
 
-def add_spectral_bin_edges(file: h5py.File, group_path: str, hduls: list[hdulist]) -> None:
+def add_spectral_bin_edges(file: h5py.File, group_path: str, hduls: hdulist) -> None:
     def get_data() -> np.ndarray:
         # All files should have the same spatial binning, so just get the first file's info
         return np.append(hduls[0]['binning'].data['spepixlo'][0], hduls[0]['binning'].data['spepixhi'][0, -1] + 1) if hduls else np.array([])
@@ -62,7 +71,7 @@ def add_spectral_bin_edges(file: h5py.File, group_path: str, hduls: list[hdulist
 
     dataset_name = 'spectral_bin_edges'
     dataset_version_name = f'{dataset_name}'
-    dataset_path = make_dataset_path(group_path, dataset_name)
+    dataset_path = f'{group_path}/{dataset_name}'
     latest_version = get_latest_pipeline_versions()[dataset_version_name]
     unit = 'bin number'
     comment = 'This data is taken from the binning/spepixlo and spepixhi structure of the v13 IUVS data.'
