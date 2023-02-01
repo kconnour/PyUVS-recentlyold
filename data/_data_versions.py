@@ -5,7 +5,7 @@ import yaml
 
 
 def get_path_of_version_file() -> Path:
-    return Path(__file__).resolve().parent / '_data_versions.yaml'
+    return Path(__file__).resolve().parent / 'data_versions.yaml'
 
 
 def get_latest_pipeline_versions() -> dict:

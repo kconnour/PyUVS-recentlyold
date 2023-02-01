@@ -105,3 +105,6 @@ This value is simply an engineering convention and has no physical basis.
 """
 
 failsafe_voltage: float = 497.63803
+
+
+latest_hdul_file_version: int = 14

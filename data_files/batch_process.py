@@ -51,7 +51,7 @@ if __name__ == '__main__':
     spice_kernel_location = Path('/media/kyle/iuvs/spice')
     data_file_save_location = Path('/media/kyle/iuvs/data')
 
-    for orbit in range(2893, 2894):
+    for orbit in range(100, 200):
         print(orbit)
         orbit_block = make_orbit_block(orbit)
         orbit_code = make_orbit_code(orbit)
@@ -59,24 +59,22 @@ if __name__ == '__main__':
         # TODO: if overall data product number is up to date, skip the below to not overwrite it
 
         for segment in ['apoapse']:
-            apoapse_path = 'apoapse'
-            file.require_group(apoapse_path)
+            file.require_group(f'{segment}')
 
             match segment:
                 case 'apoapse':
-                    apoapse_apsis_path = 'apoapse/apsis'
-                    file.require_group(apoapse_apsis_path)
-                    apoapse.apsis.add_apsis_data_to_file(file, apoapse_apsis_path, None)
+                    #apoapse_apsis_path = 'apoapse/apsis'
+                    #file.require_group(apoapse_apsis_path)
+                    #apoapse.apsis.add_apsis_data_to_file(file, apoapse_apsis_path, None)
 
                     # Get some data to work with. For FUV/MUV independent data, just choose either channel
                     data_files = sorted((iuvs_fits_file_location / orbit_block).glob(f'*apoapse*{orbit_code}*muv*.gz'))
                     hduls = [fits.open(f) for f in data_files]
 
-                    apoapse_integration_path = 'apoapse/integration'
-                    file.require_group(apoapse_integration_path)
-                    apoapse.integration.add_channel_independent_integration_data_to_file(file, apoapse_integration_path, hduls)
+                    file.require_group('apoapse/integration')
+                    apoapse.integration.add_channel_independent_integration_data_to_file(file, hduls)
 
-                    apoapse_spacecraft_geometry_path = 'apoapse/spacecraft_geometry'
+                    '''apoapse_spacecraft_geometry_path = 'apoapse/spacecraft_geometry'
                     file.require_group(apoapse_spacecraft_geometry_path)
                     apoapse.spacecraft_geometry.add_spacecraft_geometry_data_to_file(file, apoapse_spacecraft_geometry_path, apoapse_path, hduls)
 
@@ -152,3 +150,4 @@ if __name__ == '__main__':
                                             apoapse_muv_nightside_bin_geometry_path = 'apoapse/muv/nightside/bin_geometry'
                                             file.require_group(apoapse_muv_nightside_bin_geometry_path)
                                             apoapse.muv.nightside.bin_geometry.add_bin_geometry_data_to_file(file, apoapse_muv_nightside_bin_geometry_path, 'apoapse', nightside_hduls)
+'''

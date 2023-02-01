@@ -15,6 +15,16 @@ apsis_subspacecraft_local_time: 1
 apsis_mars_sun_distance: 1
 apsis_subsolar_subspacecraft_angle: 1
 
+# apoapse/integration
+apoapse/integration/ephemeris_time: 1
+apoapse/integration/field_of_view: 1
+apoapse/integration/mirror_data_number: 1
+apoapse/integration/case_temperature: 1
+apoapse/integration/integration_time: 1
+apoapse/integration/data_file: 1
+apoapse/integration/swath_number: 1
+apoapse/integration/opportunity: 1
+
 # bin_geometry
 bin_latitude: 1
 bin_longitude: 1

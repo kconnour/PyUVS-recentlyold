@@ -5,11 +5,8 @@ import numpy as np
 
 from pyuvs.typing import hdulist
 from pyuvs.data_versions import current_dataset_is_up_to_date, get_latest_pipeline_versions, dataset_exists
-
-
-compression = 'gzip'
-compression_opts = 4
-
+from pyuvs.hdf5_options import compression, compression_opts
+from pyuvs.binning import get_spatial_bin_edges, get_spectral_bin_edges, get_bin_width
 
 def add_binning_data_to_file(file: h5py.File, binning_path: str, hduls: hdulist) -> None:
     add_spatial_bin_edges(file, binning_path, hduls)
@@ -18,17 +15,7 @@ def add_binning_data_to_file(file: h5py.File, binning_path: str, hduls: hdulist)
 
 def add_spatial_bin_edges(file: h5py.File, group_path: str, hduls: hdulist) -> None:
     def get_data() -> np.ndarray:
-        # All files should have the same spatial binning, so just get the first file's info
-        return np.append(hduls[0]['binning'].data['spapixlo'][0], hduls[0]['binning'].data['spapixhi'][0, -1] + 1) if hduls else np.array([])
-
-    def get_bin_width(edges: np.ndarray):
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter('ignore', category=RuntimeWarning)
-                width = int(np.median(np.diff(edges)))
-        except ValueError:
-            width = 0
-        return width
+        return get_spatial_bin_edges(hduls)
 
     dataset_name = 'spatial_bin_edges'
     dataset_version_name = f'{dataset_name}'
@@ -57,17 +44,7 @@ def add_spatial_bin_edges(file: h5py.File, group_path: str, hduls: hdulist) -> N
 
 def add_spectral_bin_edges(file: h5py.File, group_path: str, hduls: hdulist) -> None:
     def get_data() -> np.ndarray:
-        # All files should have the same spatial binning, so just get the first file's info
-        return np.append(hduls[0]['binning'].data['spepixlo'][0], hduls[0]['binning'].data['spepixhi'][0, -1] + 1) if hduls else np.array([])
-
-    def get_bin_width(edges: np.ndarray):
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter('ignore', category=RuntimeWarning)
-                width = int(np.median(np.diff(edges)))
-        except ValueError:
-            width = 0
-        return width
+        return get_spectral_bin_edges(hduls)
 
     dataset_name = 'spectral_bin_edges'
     dataset_version_name = f'{dataset_name}'
