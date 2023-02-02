@@ -2,8 +2,7 @@ import h5py
 import numpy as np
 
 
-def add_apsis_data_to_file(file: h5py.File, apsis_path: str, ephemeris_times: np.ndarray) -> None:
-    file.require_group(apsis_path)
+def add_apsis_data_to_file(file: h5py.File) -> None:
     # TODO: add ephemeris time
     # TODO: add mars year
     # TODO: add Ls

@@ -4,4 +4,6 @@ from . import data_versions
 from . import file_classification
 from . import hdf5_options
 from . import integration
+from . import spacecraft_geometry
 from . import typing
+from . import units

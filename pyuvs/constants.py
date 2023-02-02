@@ -96,7 +96,7 @@ Notes
 This value comes from Justin Deighan.
 """
 
-day_night_voltage_boundary: int = 790
+apoapse_muv_day_night_voltage_boundary: int = 790
 """Voltage defining the boundary between dayside and nightside settings.
 
 Notes
@@ -104,7 +104,14 @@ Notes
 This value is simply an engineering convention and has no physical basis.
 """
 
-failsafe_voltage: float = 497.63803
+apoapse_muv_failsafe_voltage: float = 497.63803
+"""Voltage that apoapse MUV data defaults to if something goes wrong.
 
+Notes
+-----
+The instrument is commanded to 500V, but that turns into this number
+"""
 
-latest_hdul_file_version: int = 14
+latest_hdul_file_version: int = 13
+"""The latest version of the IUVS fits files.
+"""

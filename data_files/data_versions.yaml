@@ -25,6 +25,37 @@ apoapse/integration/data_file: 1
 apoapse/integration/swath_number: 1
 apoapse/integration/opportunity: 1
 
+# apoapse/spacecraft_geometry
+apoapse/spacecraft_geometry/subsolar_latitude: 1
+apoapse/spacecraft_geometry/subsolar_longitude: 1
+apoapse/spacecraft_geometry/subspacecraft_latitude: 1
+apoapse/spacecraft_geometry/subspacecraft_longitude: 1
+apoapse/spacecraft_geometry/subspacecraft_altitude: 1
+apoapse/spacecraft_geometry/instrument_sun_angle: 1
+apoapse/spacecraft_geometry/spacecraft_velocity_inertial_frame: 1
+apoapse/spacecraft_geometry/instrument_x_field_of_view: 1
+apoapse/app_flip: 1
+
+# apoapse/muv/integration
+apoapse/muv/integration/detector_temperature: 1
+apoapse/muv/integration/mcp_voltage: 1
+apoapse/muv/integration/mcp_voltage_gain: 1
+apoapse/muv/integration/failsafe: 1
+apoapse/muv/integration/dayside: 1
+apoapse/muv/integration/nightside: 1
+
+# apoapse/muv/failsafe/binning
+apoapse/muv/failsafe/binning/spatial_bin_edges: 1
+apoapse/muv/failsafe/binning/spectral_bin_edges: 1
+
+# apoapse/muv/dayside/binning
+apoapse/muv/dayside/binning/spatial_bin_edges: 1
+apoapse/muv/dayside/binning/spectral_bin_edges: 1
+
+# apoapse/muv/nightside/binning
+apoapse/muv/nightside/binning/spatial_bin_edges: 1
+apoapse/muv/nightside/binning/spectral_bin_edges: 1
+
 # bin_geometry
 bin_latitude: 1
 bin_longitude: 1
@@ -39,10 +70,6 @@ bin_local_time: 1
 bin_right_ascension: 1
 bin_declination: 1
 bin_vector: 1
-
-# binning
-spatial_bin_edges: 1
-spectral_bin_edges: 1
 
 # detector
 raw: 1

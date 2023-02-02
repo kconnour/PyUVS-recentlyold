@@ -1,71 +1,64 @@
-import warnings
-
 import h5py
 import numpy as np
 
-from pyuvs.typing import hdulist
-from pyuvs.data_versions import current_dataset_is_up_to_date, get_latest_pipeline_versions, dataset_exists
-from pyuvs.hdf5_options import compression, compression_opts
-from pyuvs.binning import get_spatial_bin_edges, get_spectral_bin_edges, get_bin_width
-
-def add_binning_data_to_file(file: h5py.File, binning_path: str, hduls: hdulist) -> None:
-    add_spatial_bin_edges(file, binning_path, hduls)
-    add_spectral_bin_edges(file, binning_path, hduls)
+import pyuvs as pu
 
 
-def add_spatial_bin_edges(file: h5py.File, group_path: str, hduls: hdulist) -> None:
+group_path = 'apoapse/muv/dayside/binning'
+
+
+def add_binning_data_to_file(file: h5py.File, hduls: pu.typing.hdulist) -> None:
+    add_spatial_bin_edges(file, hduls)
+    add_spectral_bin_edges(file, hduls)
+
+
+def add_spatial_bin_edges(file: h5py.File, hduls: pu.typing.hdulist) -> None:
     def get_data() -> np.ndarray:
-        return get_spatial_bin_edges(hduls)
+        return pu.binning.get_spatial_bin_edges_from_hduls(hduls)
 
     dataset_name = 'spatial_bin_edges'
-    dataset_version_name = f'{dataset_name}'
     dataset_path = f'{group_path}/{dataset_name}'
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
-    unit = 'bin number'
-    comment = 'This data is taken from the binning/spapixlo and spapixhi structure of the v13 IUVS data.'
+    latest_version = pu.data_versions.get_latest_pipeline_versions()[dataset_path]
+    comment = pu.binning.spatial_bin_edges_hdul_comment
 
-    if not dataset_exists(file, dataset_path):
+    if not pu.data_versions.dataset_exists(file, dataset_path):
         bin_edges = get_data()
-        dataset = file[group_path].create_dataset(dataset_name, data=bin_edges, compression=compression, compression_opts=compression_opts)
-        dataset.attrs['width'] = get_bin_width(bin_edges)
+        dataset = file[group_path].create_dataset(dataset_name, data=bin_edges, compression=pu.hdf5_options.compression, compression_opts=pu.hdf5_options.compression_opts)
+        dataset.attrs['width'] = pu.binning.get_bin_width(bin_edges)
         dataset.attrs['version'] = latest_version
-        dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+
+    elif not pu.data_versions.current_dataset_is_up_to_date(file, dataset_path, latest_version):
         dataset = file[dataset_path]
         bin_edges = get_data()
         dataset[:] = bin_edges
-        dataset.attrs['width'] = get_bin_width(bin_edges)
+        dataset.attrs['width'] = pu.binning.get_bin_width(bin_edges)
         dataset.attrs['version'] = latest_version
-        dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
 
-def add_spectral_bin_edges(file: h5py.File, group_path: str, hduls: hdulist) -> None:
+def add_spectral_bin_edges(file: h5py.File, hduls: pu.typing.hdulist) -> None:
     def get_data() -> np.ndarray:
-        return get_spectral_bin_edges(hduls)
+        return pu.binning.get_spectral_bin_edges_from_hduls(hduls)
 
     dataset_name = 'spectral_bin_edges'
-    dataset_version_name = f'{dataset_name}'
     dataset_path = f'{group_path}/{dataset_name}'
-    latest_version = get_latest_pipeline_versions()[dataset_version_name]
-    unit = 'bin number'
-    comment = 'This data is taken from the binning/spepixlo and spepixhi structure of the v13 IUVS data.'
+    latest_version = pu.data_versions.get_latest_pipeline_versions()[dataset_path]
+    comment = pu.binning.spectral_bin_edges_hdul_comment
 
-    if not dataset_exists(file, dataset_path):
+    if not pu.data_versions.dataset_exists(file, dataset_path):
         bin_edges = get_data()
-        dataset = file[group_path].create_dataset(dataset_name, data=bin_edges, compression=compression, compression_opts=compression_opts)
-        dataset.attrs['width'] = get_bin_width(bin_edges)
+        dataset = file[group_path].create_dataset(dataset_name, data=bin_edges, compression=pu.hdf5_options.compression, compression_opts=pu.hdf5_options.compression_opts)
+        dataset.attrs['width'] = pu.binning.get_bin_width(bin_edges)
         dataset.attrs['version'] = latest_version
-        dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
 
-    elif not current_dataset_is_up_to_date(file, dataset_path, latest_version):
+
+    elif not pu.data_versions.current_dataset_is_up_to_date(file, dataset_path, latest_version):
         dataset = file[dataset_path]
         bin_edges = get_data()
         dataset[:] = bin_edges
-        dataset.attrs['width'] = get_bin_width(bin_edges)
+        dataset.attrs['width'] = pu.binning.get_bin_width(bin_edges)
         dataset.attrs['version'] = latest_version
-        dataset.attrs['unit'] = unit
         dataset.attrs['comment'] = comment
