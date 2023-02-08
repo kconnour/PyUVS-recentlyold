@@ -20,7 +20,7 @@ if __name__ == '__main__':
     # TODO: See if I can compute the latest datetime of the kernels I have and use that
     apoapsis_orbits, approximate_apoapsis_ephemeris_times = pu.spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1), step_size=60)
 
-    for orbit in range(4000, 4001):
+    for orbit in range(1, 10000):
         print(orbit)
         orbit_block = pu.orbit.make_orbit_block(orbit)
         orbit_code = pu.orbit.make_orbit_code(orbit)
@@ -78,24 +78,27 @@ if __name__ == '__main__':
                                             apoapse.muv.failsafe.binning.add_binning_data_to_file(file, failsafe_hduls)
 
                                             file.create_group('apoapse/muv/failsafe/detector')
+                                            apoapse.muv.failsafe.detector.add_detector_data_to_file(file, failsafe_hduls)
 
                                             file.create_group('apoapse/muv/failsafe/bin_geometry')
-                                            #apoapse.muv.failsafe.bin_geometry.add_bin_geometry_data_to_file(file, apoapse_muv_failsafe_bin_geometry_path, 'apoapse', failsafe_hduls)
+                                            apoapse.muv.failsafe.bin_geometry.add_bin_geometry_data_to_file(file, failsafe_hduls)
 
                                         case 'dayside':
                                             file.create_group('apoapse/muv/dayside/binning')
                                             apoapse.muv.dayside.binning.add_binning_data_to_file(file, dayside_hduls)
 
                                             file.create_group('apoapse/muv/dayside/detector')
+                                            apoapse.muv.dayside.detector.add_detector_data_to_file(file, dayside_hduls)
 
                                             file.create_group('apoapse/muv/dayside/bin_geometry')
-                                            #apoapse.muv.dayside.bin_geometry.add_bin_geometry_data_to_file(file, apoapse_muv_dayside_bin_geometry_path, 'apoapse', dayside_hduls)
+                                            apoapse.muv.dayside.bin_geometry.add_bin_geometry_data_to_file(file, dayside_hduls)
 
                                         case 'nightside':
                                             file.create_group('apoapse/muv/nightside/binning')
                                             apoapse.muv.nightside.binning.add_binning_data_to_file(file, nightside_hduls)
 
                                             file.create_group('apoapse/muv/nightside/detector')
+                                            apoapse.muv.nightside.detector.add_detector_data_to_file(file, nightside_hduls)
 
                                             file.create_group('apoapse/muv/nightside/bin_geometry')
-                                            #apoapse.muv.nightside.bin_geometry.add_bin_geometry_data_to_file(file, apoapse_muv_nightside_bin_geometry_path, 'apoapse', nightside_hduls)
+                                            apoapse.muv.nightside.bin_geometry.add_bin_geometry_data_to_file(file, nightside_hduls)

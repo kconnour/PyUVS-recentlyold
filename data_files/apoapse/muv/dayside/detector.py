@@ -4,7 +4,7 @@ import numpy as np
 import pyuvs as pu
 
 
-group_path = 'apoapse/muv/failsafe/detector'
+group_path = 'apoapse/muv/dayside/detector'
 
 
 def add_detector_data_to_file(file: h5py.File, hduls: pu.typing.hdulist) -> None:
@@ -40,14 +40,14 @@ def add_dark_subtracted(file: h5py.File, hduls: pu.typing.hdulist) -> None:
 def add_brightness(file: h5py.File) -> None:
     def get_data() -> np.ndarray:
         dark_subtracted = file[f'{group_path}/dark_subtracted'][:]
-        spatial_bin_edges_ds = file[f'/apoapse/muv/failsafe/binning/spatial_bin_edges']
+        spatial_bin_edges_ds = file[f'/apoapse/muv/dayside/binning/spatial_bin_edges']
         spatial_bin_edges = spatial_bin_edges_ds[:]
         spatial_bin_width = spatial_bin_edges_ds.attrs['width']
-        spectral_bin_edges_ds = file[f'/apoapse/muv/failsafe/binning/spectral_bin_edges']
+        spectral_bin_edges_ds = file[f'/apoapse/muv/dayside/binning/spectral_bin_edges']
         spectral_bin_edges = spectral_bin_edges_ds[:]
         spectral_bin_width = spectral_bin_edges_ds.attrs['width']
 
-        good_integrations = file['apoapse/muv/integration/failsafe'][:]
+        good_integrations = file['apoapse/muv/integration/dayside'][:]
         integration_time = file[f'apoapse/integration/integration_time'][:][good_integrations]
         voltage = file[f'apoapse/muv/integration/mcp_voltage'][:][good_integrations]
         voltage_gain = file[f'apoapse/muv/integration/mcp_voltage_gain'][:][good_integrations]
