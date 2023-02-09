@@ -104,14 +104,6 @@ Notes
 This value is simply an engineering convention and has no physical basis.
 """
 
-apoapse_muv_failsafe_voltage: float = 497.63803
-"""Voltage that apoapse MUV data defaults to if something goes wrong.
-
-Notes
------
-The instrument is commanded to 500V, but that turns into this number
-"""
-
 latest_hdul_file_version: int = 13
 """The latest version of the IUVS fits files.
 """

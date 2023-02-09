@@ -85,8 +85,10 @@ def make_brightness(dark_subtracted: np.ndarray, spatial_bin_edges: np.ndarray, 
             # Get the flatfield
             flatfield = _make_muv_flatfield(spatial_bin_edges, spectral_bin_edges)
 
+            flatfield = np.fliplr(flatfield) if app_flip else flatfield
+
             # The sensitivity curve is currently 512 elements. Make it (1024,) for simplicity
-            sensitivity_curve = load_muv_sensitivity_curve_observational()[:, 1]
+            sensitivity_curve = load_muv_sensitivity_curve_observational()[1]
             sensitivity_curve = np.repeat(sensitivity_curve, 2)
 
             # Get the sensitivity in each spectral bin
@@ -99,7 +101,10 @@ def make_brightness(dark_subtracted: np.ndarray, spatial_bin_edges: np.ndarray, 
             voltage_correction = _make_gain_correction(dark_subtracted, spatial_bin_width, spectral_bin_width, integration_time, mcp_voltage, mcp_voltage_gain)
             data = partial_corrected_brightness / flatfield * voltage_correction
 
-            data = np.fliplr(data) if app_flip else data
+            #data = np.fliplr(data) if app_flip else data
+
+            # If the data have negative DNs, then they become NaNs during the voltage correction
+            data[np.isnan(data)] = 0
         else:
             data = np.array([])
         return data

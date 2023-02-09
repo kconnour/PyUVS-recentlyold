@@ -32,7 +32,7 @@ def compute_subsolar_longitude(ephemeris_time: float) -> np.ndarray:
 
 
 def compute_subspacecraft_latitude(ephemeris_time: float) -> np.ndarray:
-    return np.array([spice.compute_subspacecraft_point(ephemeris_time)[1]])
+    return np.array([spice.compute_subspacecraft_point(ephemeris_time)[0]])
 
 
 def compute_subspacecraft_longitude(ephemeris_time: float) -> np.ndarray:
@@ -49,6 +49,3 @@ def compute_subspacecraft_local_time(ephemeris_time: float, longitude: np.ndarra
 
 def compute_mars_sun_distance(ephemeris_time: float) -> np.ndarray:
     return np.array([spice.compute_mars_sun_distance(ephemeris_time)])
-
-
-

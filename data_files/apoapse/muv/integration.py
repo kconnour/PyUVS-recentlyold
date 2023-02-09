@@ -7,14 +7,14 @@ import pyuvs as pu
 path = 'apoapse/muv/integration'
 
 
-def add_channel_dependent_integration_data_to_file(file: h5py.File, hduls: pu.typing.hdulist) -> None:
+def add_channel_dependent_integration_data_to_file(file: h5py.File, hduls: pu.typing.hdulist, orbit: int) -> None:
     # TODO: it'd be nice to add pointers to the channel independent integration arrays, but h5py doesn't support that yet
     #  (there's currently a pull request)
     add_detector_temperature(file, hduls)
     add_mcp_voltage(file, hduls)
     add_mcp_voltage_gain(file, hduls)
-    add_failsafe_integrations(file)
-    add_dayside_integrations(file)
+    add_failsafe_integrations(file, orbit)
+    add_dayside_integrations(file, orbit)
     add_nightside_integrations(file)
 
 
@@ -45,19 +45,21 @@ def add_mcp_voltage_gain(file: h5py.File, hduls: pu.typing.hdulist) -> None:
     dataset.attrs['comment'] = pu.integration.mcp_voltage_gain_hdul_comment
 
 
-def add_failsafe_integrations(file: h5py.File) -> None:
+def add_failsafe_integrations(file: h5py.File, orbit) -> None:
     def get_data() -> np.ndarray:
         voltage: np.ndarray = file[f'{path}/mcp_voltage'][:]
-        return voltage == pu.constants.apoapse_muv_failsafe_voltage
+        failsafe_voltage = pu.failsafe.get_apoapse_muv_failsafe_voltage(orbit)
+        return np.isclose(voltage, failsafe_voltage)
 
     dataset = file[path].create_dataset('failsafe', data=get_data(), compression=pu.hdf5_options.compression, compression_opts=pu.hdf5_options.compression_opts)
     dataset.attrs['comment'] = 'True if the integration was taken during a failsafe observation; False otherwise.'
 
 
-def add_dayside_integrations(file: h5py.File) -> None:
+def add_dayside_integrations(file: h5py.File, orbit) -> None:
     def get_data() -> np.ndarray:
         voltage: np.ndarray = file[f'{path}/mcp_voltage'][:]
-        return np.logical_and(voltage < pu.constants.apoapse_muv_day_night_voltage_boundary, voltage != pu.constants.apoapse_muv_failsafe_voltage)
+        failsafe_voltage = pu.failsafe.get_apoapse_muv_failsafe_voltage(orbit)
+        return np.logical_and(voltage < pu.constants.apoapse_muv_day_night_voltage_boundary, ~np.isclose(voltage, failsafe_voltage))
 
     dataset = file[path].create_dataset('dayside', data=get_data(), compression=pu.hdf5_options.compression, compression_opts=pu.hdf5_options.compression_opts)
     dataset.attrs['comment'] = 'True if the integration was part of dayside science; False otherwise. ' \

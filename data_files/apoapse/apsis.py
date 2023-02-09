@@ -105,7 +105,7 @@ def add_subspacecraft_latitude(file: h5py.File) -> None:
 def add_subspacecraft_longitude(file: h5py.File) -> None:
     def get_data() -> np.ndarray:
         et = get_ephemeris_time_from_file(file)
-        return pu.apsis.compute_subspacecraft_latitude(et)
+        return pu.apsis.compute_subspacecraft_longitude(et)
 
     dataset = file[path].create_dataset('subspacecraft_longitude', data=get_data())
     dataset.attrs['unit'] = pu.units.longitude

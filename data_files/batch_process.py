@@ -18,9 +18,9 @@ if __name__ == '__main__':
     pu.spice.clear_existing_kernels()
     pu.spice.furnish_standard_kernels(spice_kernel_location)
     # TODO: See if I can compute the latest datetime of the kernels I have and use that
-    apoapsis_orbits, approximate_apoapsis_ephemeris_times = pu.spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2019, 1, 1), step_size=60)
+    apoapsis_orbits, approximate_apoapsis_ephemeris_times = pu.spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2022, 1, 1), step_size=60)
 
-    for orbit in range(1, 10000):
+    for orbit in range(1, 7000):
         print(orbit)
         orbit_block = pu.orbit.make_orbit_block(orbit)
         orbit_code = pu.orbit.make_orbit_code(orbit)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
                     apoapse.apsis.add_apsis_data_to_file(file, approximate_apoapsis_ephemeris_times)
 
                     file.create_group('apoapse/integration')
-                    apoapse.integration.add_channel_independent_integration_data_to_file(file, hduls)
+                    apoapse.integration.add_channel_independent_integration_data_to_file(file, hduls, orbit)
 
                     file.create_group('apoapse/spacecraft_geometry')
                     apoapse.spacecraft_geometry.add_spacecraft_geometry_data_to_file(file, hduls)
@@ -61,13 +61,13 @@ if __name__ == '__main__':
                                 apoapse_muv_hduls = [fits.open(f) for f in apoapse_muv_data_files]
 
                                 # Classify hduls
-                                failsafe_hduls = [f for c, f in enumerate(apoapse_muv_hduls) if pu.file_classification.determine_apoapse_muv_failsafe_files(apoapse_muv_hduls)[c]]
+                                failsafe_hduls = [f for c, f in enumerate(apoapse_muv_hduls) if pu.file_classification.determine_apoapse_muv_failsafe_files(apoapse_muv_hduls, orbit)[c]]
                                 dayside_hduls = [f for c, f in enumerate(apoapse_muv_hduls) if pu.file_classification.determine_apoapse_muv_dayside_files(apoapse_muv_hduls)[c]
                                                      and f not in failsafe_hduls]
                                 nightside_hduls = [f for f in apoapse_muv_hduls if f not in failsafe_hduls and f not in dayside_hduls]
 
                                 file.create_group('apoapse/muv/integration')
-                                apoapse.muv.integration.add_channel_dependent_integration_data_to_file(file, apoapse_muv_hduls)
+                                apoapse.muv.integration.add_channel_dependent_integration_data_to_file(file, apoapse_muv_hduls, orbit)
 
                                 for experiment in ['failsafe', 'dayside', 'nightside']:
                                     file.create_group(f'{segment}/{channel}/{experiment}')

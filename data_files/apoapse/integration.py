@@ -7,15 +7,16 @@ import pyuvs as pu
 path = 'apoapse/integration'
 
 
-def add_channel_independent_integration_data_to_file(file: h5py.File, hduls: pu.typing.hdulist) -> None:
+def add_channel_independent_integration_data_to_file(file: h5py.File, hduls: pu.typing.hdulist, orbit: int) -> None:
     add_ephemeris_time(file, hduls)
     add_field_of_view(file, hduls)
     add_mirror_data_number(file, hduls)
     add_case_temperature(file, hduls)
     add_integration_time(file, hduls)
     add_data_file(file, hduls)
-    add_swath_number(file)
+    add_swath_number(file, orbit)
     add_opportunity_classification(file)
+    add_number_of_swaths(file, orbit)
 
 
 def add_ephemeris_time(file: h5py.File, hduls: pu.typing.hdulist) -> None:
@@ -70,11 +71,15 @@ def add_data_file(file: h5py.File, hduls: pu.typing.hdulist) -> None:
     dataset.attrs['comment'] = pu.integration.data_file_comment
 
 
-def add_swath_number(file: h5py.File) -> None:
+def add_swath_number(file: h5py.File, orbit: int) -> None:
     def get_data() -> np.ndarray:
         field_of_view = file[f'{path}/field_of_view'][:]
-        default_swath_numbers = pu.integration.compute_swath_number(field_of_view)
-        return default_swath_numbers
+        swath_numbers = pu.integration.compute_swath_number(field_of_view)
+
+        if orbit == 239:
+            swath_numbers += 1
+
+        return swath_numbers
 
     dataset = file[path].create_dataset('swath_number', data=get_data(), compression=pu.hdf5_options.compression, compression_opts=pu.hdf5_options.compression_opts)
     dataset.attrs['comment'] = 'The swath number of each integration, modified to account for apoapse oddities.'
@@ -88,3 +93,15 @@ def add_opportunity_classification(file: h5py.File) -> None:
 
     dataset = file[path].create_dataset('opportunity', data=get_data(), compression=pu.hdf5_options.compression, compression_opts=pu.hdf5_options.compression_opts)
     dataset.attrs['comment'] = 'True if an opportunistic observation; False otherwise.'
+
+
+def add_number_of_swaths(file: h5py.File, orbit: int) -> None:
+    def get_data() -> np.ndarray:
+        swath_number = file[f'{path}/swath_number'][:]
+        if swath_number.size == 0:
+            return np.array([0])
+        else:
+            return np.array([swath_number[-1] + 1])
+
+    dataset = file[path].create_dataset('n_swaths', data=get_data(), compression=pu.hdf5_options.compression, compression_opts=pu.hdf5_options.compression_opts)
+    dataset.attrs['comment'] = 'The number of swaths intended for this observation sequence (not necessarily the number of swaths taken)'
