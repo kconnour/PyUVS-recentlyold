@@ -70,12 +70,12 @@ def make_histogram_equalized_detector_image(orbit: int) -> None:
     spatial_binning = f['apoapse/muv/dayside/binning/spatial_bin_edges'][:].shape[0] - 1
     spectral_binning = f['apoapse/muv/dayside/binning/spectral_bin_edges'][:].shape[0] - 1
 
-    filename = f'{orbit_code}-Ls{solar_longitude * 10:04.0f}-angle{subsolar_subspacecraft_angle * 10:04.0f}-binning{spatial_binning:04}x{spectral_binning:04}-heq.png'
+    filename = f'{orbit_code}-Ls{solar_longitude * 10:04.0f}-angle{subsolar_subspacecraft_angle * 10:04.0f}-binning{spatial_binning:04}x{spectral_binning:04}-heq-ql.png'
 
     plt.savefig(save_location / filename)
 
 
-def make_square_scaled_detector_image(orbit: int) -> None:
+def make_square_root_scaled_detector_image(orbit: int) -> None:
     orbit_block = pu.orbit.make_orbit_block(orbit)
     orbit_code = pu.orbit.make_orbit_code(orbit)
 
@@ -130,9 +130,10 @@ def make_square_scaled_detector_image(orbit: int) -> None:
     spatial_binning = f['apoapse/muv/dayside/binning/spatial_bin_edges'][:].shape[0] - 1
     spectral_binning = f['apoapse/muv/dayside/binning/spectral_bin_edges'][:].shape[0] - 1
 
-    filename = f'{orbit_code}-Ls{solar_longitude * 10:04.0f}-angle{subsolar_subspacecraft_angle * 10:04.0f}-binning{spatial_binning:04}x{spectral_binning:04}-sqrt.png'
+    filename = f'{orbit_code}-Ls{solar_longitude * 10:04.0f}-angle{subsolar_subspacecraft_angle * 10:04.0f}-binning{spatial_binning:04}x{spectral_binning:04}-sqrt-ql.png'
 
     plt.savefig(save_location / filename)
+    plt.close()
 
 
 if __name__ == '__main__':
@@ -143,7 +144,8 @@ if __name__ == '__main__':
     pool = mp.Pool(n_cpus -1)
 
     for orb in range(1, 1000):
-        pool.apply_async(func=make_square_scaled_detector_image, args=(orb,))
+        pool.apply_async(func=make_histogram_equalized_detector_image, args=(orb,))
+        pool.apply_async(func=make_square_root_scaled_detector_image, args=(orb,))
 
     pool.close()
     pool.join()
