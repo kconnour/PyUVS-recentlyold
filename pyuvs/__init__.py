@@ -15,6 +15,4 @@ from . import spice
 from . import typing
 from . import units
 
-from . import colorize
-from . import detector_image
 from . import failsafe
