@@ -1,26 +1,13 @@
 from netCDF4 import Dataset
 import numpy as np
 
-from ames.algorithms import make_latitude_edges, make_longitude_edges, make_yearly_sol_from_simulation_sol, \
-    make_solar_longitude, make_pressure
-
 
 def get_latitude_centers(gcm: Dataset) -> np.ndarray:
     return gcm['lat'][:]
 
 
-def get_latitude_edges(gcm: Dataset) -> np.ndarray:
-    latitude = get_latitude_centers(gcm)
-    return make_latitude_edges(latitude)
-
-
 def get_longitude_centers(gcm: Dataset) -> np.ndarray:
     return gcm['lon'][:]
-
-
-def get_longitude_edges(gcm: Dataset) -> np.ndarray:
-    longitude = get_longitude_centers(gcm)
-    return make_longitude_edges(longitude)
 
 
 def get_simulation_sol_centers(gcm: Dataset) -> np.ndarray:
@@ -28,17 +15,7 @@ def get_simulation_sol_centers(gcm: Dataset) -> np.ndarray:
 
 
 def get_simulation_sol_edges(gcm: Dataset) -> np.ndarray:
-    return np.unique(gcm['time_bnds'][:])
-
-
-def get_yearly_sol_centers(gcm: Dataset) -> np.ndarray:
-    simulation_sol_centers = get_simulation_sol_centers(gcm)
-    return make_yearly_sol_from_simulation_sol(simulation_sol_centers)
-
-
-def get_yearly_sol_edges(gcm: Dataset) -> np.ndarray:
-    simulation_sol_edges = get_simulation_sol_edges(gcm)
-    return make_yearly_sol_from_simulation_sol(simulation_sol_edges)
+    return gcm['time_bnds'][:]
 
 
 def get_local_time_centers(gcm: Dataset) -> np.ndarray:
@@ -50,12 +27,7 @@ def get_local_time_edges(gcm: Dataset) -> np.ndarray:
 
 
 def get_areo(gcm: Dataset) -> np.ndarray:
-    return gcm['areo'][:, :, 0]
-
-
-def get_solar_longitude_centers(gcm: Dataset) -> np.ndarray:
-    areo = get_areo(gcm)
-    return make_solar_longitude(areo)
+    return gcm['areo'][:]
 
 
 def get_ak(gcm: Dataset) -> np.ndarray:
@@ -75,12 +47,12 @@ def get_surface_temperature(gcm: Dataset) -> np.ndarray:
 
 
 def get_atmospheric_temperature(gcm: Dataset) -> np.ndarray:
-    temperature = gcm['temp'][:]
-    return np.moveaxis(temperature, 2, -1)
+    return gcm['temp'][:]
 
 
-def get_atmospheric_pressure(gcm: Dataset) -> np.ndarray:
-    ak = get_ak(gcm)
-    bk = get_bk(gcm)
-    surface_pressure = get_surface_pressure(gcm)
-    return make_pressure(surface_pressure, ak, bk)
+def get_extinction_dust_opacity_per_pascal(gcm: Dataset) -> np.ndarray:
+    return gcm['dustref'][:]
+
+
+def get_absorption_ice_opacity_per_pascal(gcm: Dataset) -> np.ndarray:
+    return gcm['cldref'][:]
