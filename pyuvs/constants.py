@@ -38,8 +38,13 @@ value in his ray tracing code. The IUVS paper simply notes this value is
 100 mm (see Table 3, p. 91) with only 1 significant figure. 
 """
 
-angular_slit_width: float = spatial_slit_length / telescope_focal_length * \
-                            180 / np.pi
+detector_length: int = 22
+"""Length of the length of the detector [mm]."""
+
+angular_detector_width: float = spatial_slit_length / telescope_focal_length * 180 / np.pi
+"""Angular width of the detector [degrees]."""
+
+angular_slit_width: float = spatial_slit_length / telescope_focal_length * 180 / np.pi
 r"""Width of the slit [degrees].
 
 Notes
@@ -106,4 +111,8 @@ This value is simply an engineering convention and has no physical basis.
 
 latest_hdul_file_version: int = 13
 """The latest version of the IUVS fits files.
+"""
+
+gravity: float = 3.72076
+"""The gravitational constant on Mars.
 """

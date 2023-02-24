@@ -242,3 +242,23 @@ def square_root_scale_detector_image(
     coadded_image = turn_detector_image_to_3_channels(image)
     return square_root_scale_rgb_image(coadded_image, low_percentile=low_percentile,
                                        high_percentile=high_percentile, mask=mask)
+
+
+def make_image_of_mean_variations(image: np.ndarray) -> np.ndarray:
+    """Make an image of the mean variations along
+
+    Parameters
+    ----------
+    image
+
+    Returns
+    -------
+
+    """
+    spectral_mean = np.nanmean(image, axis=-1)
+    return np.moveaxis(np.moveaxis(image, -1, 0) / spectral_mean, 0, -1)
+
+
+def histogram_equalize_detector_image_variations(image: np.ndarray, mask=None) -> np.ndarray:
+    mean_variations = make_image_of_mean_variations(image)
+    return histogram_equalize_detector_image(mean_variations, mask=mask)

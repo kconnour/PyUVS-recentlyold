@@ -1,39 +1,78 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from .constants import angular_slit_width
 
 
-def pcolormesh_rgb_detector_image(
-        axis: plt.Axes, image: np.ndarray, horizontal_meshgrid: np.ndarray,
-        vertical_meshgrid: np.ndarray) -> None:
-    """Pcolormesh an rgb detector image in a given axis.
+def make_swath_grid(field_of_view: np.ndarray, n_spatial_bins: int, swath_number: int, angular_size: float) \
+        -> tuple[np.ndarray, np.ndarray]:
+    """Make a swath grid of mirror angles and spatial bins.
 
     Parameters
     ----------
-    axis: plt.Axes
-        The axis to place the pcolormeshed image into.
-    image: np.ndarray
-        The MxNx3 array of rgb values.
-    horizontal_meshgrid: np.ndarray
-        The horizontal grid of pixel coordinates.
-    vertical_meshgrid: np.ndarray
-        The vertical grid of pixel coordinates.
+    field_of_view
+        The instrument's field of view.
+    swath_number
+        The swath number.
+    n_spatial_bins
+        The number of spatial bins.
+    angular_size
+        The angular size of one horizontal element. This is likely the angular detector width or the angular size of the
+        observation, but can be any value.
 
     Returns
     -------
-    None
+    tuple[np.ndarray, np.ndarray]
+        The swath grid.
 
     """
-    fill = image[:, :, 0]
-    reshaped_image = reshape_data_for_pcolormesh(image)
-    plot_detector_image(axis, horizontal_meshgrid, vertical_meshgrid, fill,
-                        reshaped_image)
+    spatial_bin_angular_edges = _make_spatial_bin_angular_edges(angular_size, swath_number, n_spatial_bins)
+    field_of_view_edges = _make_field_of_view_edges(field_of_view)
+    return np.meshgrid(spatial_bin_angular_edges, field_of_view_edges)
 
 
-def pcolormesh_detector_image(
-        axis: plt.Axes, image: np.ndarray, horizontal_meshgrid: np.ndarray,
+def _make_spatial_bin_angular_edges(angular_size: float, swath_number: int, n_spatial_bins: int) -> np.ndarray:
+    """Make the edges of each spatial bin such that they fit into a given angular size
+
+    Parameters
+    ----------
+    angular_size
+    swath_number
+    n_spatial_bins
+
+    Returns
+    -------
+
+    """
+    return np.linspace(angular_size * swath_number, angular_size * (swath_number + 1), num=n_spatial_bins+1)
+
+
+def _make_field_of_view_edges(field_of_view) -> np.ndarray:
+    """Make the edges of the field of view
+
+    Parameters
+    ----------
+    field_of_view
+
+    Returns
+    -------
+
+    Notes
+    -----
+    The field of view may not necessarily increase at a constant rate so this isn't rigorous. This also assumes all
+    pixels are contiguous
+
+    """
+    n_integrations = field_of_view.size
+    mean_angle_difference = np.mean(np.diff(field_of_view))
+    field_of_view_edges = np.linspace(field_of_view[0] - mean_angle_difference / 2,
+                                     field_of_view[-1] + mean_angle_difference / 2,
+                                     num=n_integrations + 1)
+    return field_of_view_edges
+
+
+def pcolormesh_detector_image(axis: plt.Axes, image: np.ndarray, horizontal_meshgrid: np.ndarray,
         vertical_meshgrid: np.ndarray, **kwargs) -> None:
-    """Pcolormesh a single-channel detector image in a given axis.
+    """pcolormesh a single-channel detector image in a given axis. For instance, this could be the local time,
+    solar zenith angle, or a linear scaling for one channel of the detector.
 
     Parameters
     ----------
@@ -52,6 +91,10 @@ def pcolormesh_detector_image(
     -------
     None
 
+    See Also
+    --------
+    pcolormesh_rgb_detector_image: pcolormesh an rgb image
+
     """
 
     axis.pcolormesh(
@@ -62,93 +105,80 @@ def pcolormesh_detector_image(
         **kwargs)
 
 
-def reshape_data_for_pcolormesh(image: np.ndarray):
-    """Reshape an image array for use in pcolormesh.
-
-    Parameters
-    ----------
-    image
-        Any MxNx3 array.
-
-    Returns
-    -------
-    np.ndarray
-        Array with reshaped dimensions.
-
-    """
-    return np.reshape(image, (image.shape[0] * image.shape[1], image.shape[2]))
-
-
-def make_swath_grid(field_of_view: np.ndarray, swath_number: int,
-                    n_positions: int, n_integrations: int) \
-        -> tuple[np.ndarray, np.ndarray]:
-    """Make a swath grid of mirror angles and spatial bins.
-
-    Parameters
-    ----------
-    field_of_view: np.ndarray
-        The instrument's field of view.
-    swath_number: int
-        The swath number.
-    n_positions: int
-        The number of positions.
-    n_integrations: int
-        The number of integrations.
-
-    Returns
-    -------
-    tuple[np.ndarray, np.ndarray]
-        The swath grid.
-
-    """
-    slit_angles = np.linspace(angular_slit_width * swath_number,
-                              angular_slit_width * (swath_number + 1),
-                              num=n_positions+1)
-    mean_angle_difference = np.mean(np.diff(field_of_view))
-    field_of_view = np.linspace(field_of_view[0] - mean_angle_difference / 2,
-                                field_of_view[-1] + mean_angle_difference / 2,
-                                num=n_integrations + 1)
-    return np.meshgrid(slit_angles, field_of_view)
-
-
-def make_plot_fill(altitude_mask: np.ndarray) -> np.ndarray:
-    """Make the dummy plot fill required for pcolormesh
-
-    Parameters
-    ----------
-    altitude_mask: np.ndarray
-        A mask of altitudes.
-
-    Returns
-    -------
-    np.ndarray
-        A plot fill the same shape as altitude_mask.
-
-    """
-    return np.where(altitude_mask, 1, np.nan)
-
-
-def plot_detector_image(axis: plt.Axes, x: np.ndarray, y: np.ndarray,
-                        fill: np.ndarray, colors: np.ndarray) -> None:
-    """Plot a detector image created via custom color scheme.
+def pcolormesh_rgb_detector_image(axis: plt.Axes, image: np.ndarray, x: np.ndarray, y: np.ndarray) -> None:
+    """pcolormesh an rgb detector image in a given axis.
 
     Parameters
     ----------
     axis: plt.Axes
         The axis to place the detector image into.
+    image: np.ndarray
+        An MxNx3 (rgb) or MxNx4 (rgba) array of colors.
     x: np.ndarray
-        The so called x grid.
+        The horizontal grid of pixel corners.
     y: np.ndarray
-        The so called y grid.
-    fill: np.ndarray
-        A dummy detector fill.
-    colors: np.ndarray
-        An MxNx3 array of rgb colors.
+        The vertical grid of pixel corners.
 
     Returns
     -------
     None
 
+    See Also
+    --------
+    pcolormesh_detector_image: pcolormesh a single-channel detector image.
+
     """
-    axis.pcolormesh(x, y, fill, color=colors, linewidth=0,
-                    edgecolors='none', rasterized=True).set_array(None)
+    fill = image[:, :, 0]
+    image = np.reshape(image, (image.shape[0] * image.shape[1], image.shape[2]))
+    axis.pcolormesh(x, y, fill, color=image, linewidth=0, edgecolors='none', rasterized=True).set_array(None)
+
+    # This does not work but the documentation seems to indicate it should. It would replace the above.
+    axis.pcolormesh(x, y, image, linewidth=0, edgecolors='none', rasterized=True).set_array(None)
+
+
+def plot_rgb_detector_image_in_axis(axis: plt.Axes, image: np.ndarray, swath_number: np.ndarray,
+                                    field_of_view: np.ndarray, angular_size: float) -> None:
+    """Plot an rgb detector image in a given axis.
+
+    Parameters
+    ----------
+    axis
+    image
+    swath_number
+    field_of_view
+    angular_size
+
+    Returns
+    -------
+
+    """
+    n_spatial_bins = image.shape[1]
+    for swath in np.unique(swath_number):
+        swath_indices = swath_number == swath
+        x, y = make_swath_grid(field_of_view[swath_indices], n_spatial_bins, swath, angular_size)
+        pcolormesh_rgb_detector_image(axis, image[swath_indices], x, y)
+
+
+def add_terminator_contour_line_to_axis(axis: plt.Axes, solar_zenith_angle: np.ndarray, swath_number: np.ndarray,
+                                        field_of_view: np.ndarray, angular_size: float) -> None:
+    """Add terminator contour line to an axis.
+
+    Parameters
+    ----------
+    axis
+    solar_zenith_angle
+    swath_number
+    field_of_view
+    angular_size
+
+    Returns
+    -------
+
+    """
+    n_spatial_bins = solar_zenith_angle.shape[1]
+    spatial_bin_centers = np.linspace(0.5, n_spatial_bins - 1, num=n_spatial_bins)
+
+    for swath in np.unique(swath_number):
+        swath_indices = swath_number == swath
+        axis.contour(spatial_bin_centers + swath * angular_size, field_of_view[swath_indices],
+                     solar_zenith_angle[swath_indices], [90], colors='red', linewidths=0.5)

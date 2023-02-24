@@ -76,9 +76,6 @@ def add_swath_number(file: h5py.File, orbit: int) -> None:
         field_of_view = file[f'{path}/field_of_view'][:]
         swath_numbers = pu.integration.compute_swath_number(field_of_view)
 
-        if orbit == 239:
-            swath_numbers += 1
-
         return swath_numbers
 
     dataset = file[path].create_dataset('swath_number', data=get_data(), compression=pu.hdf5_options.compression, compression_opts=pu.hdf5_options.compression_opts)

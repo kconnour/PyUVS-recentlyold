@@ -1,3 +1,5 @@
+from .orbit import *
+
 from . import anc
 from . import angle
 from . import apsis
@@ -9,10 +11,11 @@ from . import detector
 from . import file_classification
 from . import hdf5_options
 from . import integration
-from . import orbit
 from . import spacecraft_geometry
 from . import spice
 from . import typing
 from . import units
 
+from . import detector_image
 from . import failsafe
+from . import pixel_geometry

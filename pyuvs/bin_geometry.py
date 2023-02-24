@@ -115,6 +115,7 @@ def get_declination_from_hduls(hduls: hdulist, app_flip: bool) -> np.ndarray:
 
 def get_bin_vector_from_hduls(hduls: hdulist, app_flip: bool) -> np.ndarray:
     if hduls:
+        # shape: (n_integrations, n_spatial_bins, 5, 3)
         data = np.concatenate([np.moveaxis(add_dimension_if_necessary(f['pixelgeometry'].data['pixel_vec'], 4), 1, -1) for f in hduls])
         data = np.fliplr(data) if app_flip else data
     else:

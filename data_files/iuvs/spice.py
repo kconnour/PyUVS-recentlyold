@@ -6,7 +6,7 @@ import re
 import numpy as np
 import spiceypy as spice
 
-from .constants import orbit_insertion_date
+from pyuvs.constants import orbit_insertion_date
 
 
 target = 'Mars'

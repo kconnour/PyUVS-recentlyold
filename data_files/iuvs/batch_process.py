@@ -1,53 +1,46 @@
 from datetime import datetime
+import multiprocessing as mp
 from pathlib import Path
 
 from astropy.io import fits
 
-from _file_setup import create_file, add_basic_attributes_to_file
-import apoapse
 import pyuvs as pu
-
-import time
-import multiprocessing as mp
+from file_setup import open_latest_file, add_orbit_attribute_to_file
+from fits_sort import get_apoapse_muv_fits_files
 
 
 if __name__ == '__main__':
-    version: int = 1
-
     iuvs_fits_file_location = Path('/media/kyle/iuvs/production')
     spice_kernel_location = Path('/media/kyle/iuvs/spice')
-    data_file_save_location = Path('/media/kyle/iuvs/data')
+    data_file_save_location = Path('/media/kyle/iuvs/data/development')
+    iuvs_data_version: int = 13
 
-    pu.spice.clear_existing_kernels()
-    pu.spice.furnish_standard_kernels(spice_kernel_location)
+    #pu.spice.clear_existing_kernels()
+    #pu.spice.furnish_standard_kernels(spice_kernel_location)
     # TODO: See if I can compute the latest datetime of the kernels I have and use that
-    apoapsis_orbits, approximate_apoapsis_ephemeris_times = pu.spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2022, 9, 2), step_size=60)
+    # TODO: I don't know how to test this or structure code...
+    # apoapsis_orbits, approximate_apoapsis_ephemeris_times = pu.spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2022, 9, 2), step_size=60)
 
     def batch_process_orbit(orbit: int) -> None:
         print(orbit)
-        orbit_block = pu.orbit.make_orbit_block(orbit)
-        orbit_code = pu.orbit.make_orbit_code(orbit)
-        try:
-            file = create_file(orbit, version, data_file_save_location)
-        except FileExistsError:
-            return
-        add_basic_attributes_to_file(file, orbit, version)
+        file = open_latest_file(orbit, data_file_save_location)
+        add_orbit_attribute_to_file(file, orbit)
 
         for segment in ['apoapse']:
-            file.create_group(f'{segment}')
+            file.require_group(f'{segment}')
 
             match segment:
                 case 'apoapse':
                     # Get some data to work with. For FUV/MUV independent data, just choose either channel
-                    data_files = sorted((iuvs_fits_file_location / orbit_block).glob(f'*apoapse*{orbit_code}*muv*.gz'))
-                    hduls = [fits.open(f) for f in data_files]
+                    hduls = get_apoapse_muv_fits_files(iuvs_fits_file_location, orbit)
 
-                    file.create_group('apoapse/apsis')
-                    apoapse.apsis.add_apsis_data_to_file(file, approximate_apoapsis_ephemeris_times)
+                    #file.create_group('apoapse/apsis')
+                    #apoapse.apsis.add_apsis_data_to_file(file, approximate_apoapsis_ephemeris_times)
 
-                    file.create_group('apoapse/integration')
+                    apoapse_integration_path = 'apoapse/integration'
+                    file.require_group(apoapse_integration_path)
                     apoapse.integration.add_channel_independent_integration_data_to_file(file, hduls, orbit)
-
+                    '''
                     file.create_group('apoapse/spacecraft_geometry')
                     apoapse.spacecraft_geometry.add_spacecraft_geometry_data_to_file(file, hduls)
 
@@ -116,4 +109,4 @@ if __name__ == '__main__':
         pool.apply_async(func=batch_process_orbit, args=(orb,))
         #batch_process_orbit(orb)
     pool.close()
-    pool.join()
+    pool.join()'''

@@ -44,7 +44,7 @@ def load_map_magnetic_field_closed_probability() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import matplotlib.ticker as ticker
        import pyuvs as pu
@@ -80,7 +80,7 @@ def load_map_magnetic_field_open_probability() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import matplotlib.ticker as ticker
        import pyuvs as pu
@@ -116,7 +116,7 @@ def load_map_mars_surface() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import matplotlib.ticker as ticker
        import pyuvs as pu
@@ -162,7 +162,7 @@ def load_template_co_cameron() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -194,7 +194,7 @@ def load_template_co_plus_1st_negative() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -226,7 +226,7 @@ def load_template_co2_plus_fdb() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -258,7 +258,7 @@ def load_template_co2_plus_uvd() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -289,7 +289,7 @@ def load_template_n2_vk() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -321,7 +321,7 @@ def load_template_no_nightglow() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -353,7 +353,7 @@ def load_template_oxygen_2972() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -387,7 +387,7 @@ def load_template_solar_continuum() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -451,7 +451,7 @@ def load_fuv_sensitivity_curve_manufacturer() -> np.ndarray:
     --------
     Plot the sensitivity curve.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -484,7 +484,7 @@ def load_muv_flatfield() -> np.ndarray:
     --------
     Visualize this flatfield.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots(1, 1, figsize=(8, 2), constrained_layout=True)
@@ -530,7 +530,7 @@ def load_muv_point_spread_function() -> np.ndarray:
     --------
     Visualize this array.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import numpy as np
        import pyuvs as pu
@@ -570,7 +570,7 @@ def load_muv_sensitivity_curve_manufacturer() -> np.ndarray:
     --------
     Plot the sensitivity curve.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -609,7 +609,7 @@ def load_muv_sensitivity_curve_observational() -> np.ndarray:
     --------
     Plot the sensitivity curve.
     .. plot::
-       :include-source:
+       :include-docs_source:
        import matplotlib.pyplot as plt
        import pyuvs as pu
        fig, ax = plt.subplots()
@@ -625,3 +625,6 @@ def load_muv_sensitivity_curve_observational() -> np.ndarray:
         return np.load(_get_instrument_directory() / 'muv_sensitivity_curve_observational.npy')
     except FileNotFoundError as fe:
         raise FileNotFoundError(_error_message) from fe
+
+
+
