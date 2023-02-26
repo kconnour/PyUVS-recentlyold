@@ -1,19 +1,22 @@
-from datetime import datetime
-import multiprocessing as mp
 from pathlib import Path
 
-from astropy.io import fits
-
-import pyuvs as pu
-from file_setup import open_latest_file, add_orbit_attribute_to_file
+from file_setup import open_latest_file, add_orbit_attribute_to_file, add_version_attribute_to_file
 from fits_sort import get_apoapse_muv_fits_files
+import instrument_geometry as instrument_geometry
+import integration as integration
+import spacecraft_geometry as spacecraft_geometry
 
+
+# Note: I absolutely cannot think of a way to version each array in a smart way. The code just gets out of control
+# when thinking that I have to track all the dependencies of a change in the code. Assigning a singular version to the
+# entire file is the only sensible solution I can think of
 
 if __name__ == '__main__':
+    version: int = 1
+
     iuvs_fits_file_location = Path('/media/kyle/iuvs/production')
     spice_kernel_location = Path('/media/kyle/iuvs/spice')
-    data_file_save_location = Path('/media/kyle/iuvs/data/development')
-    iuvs_data_version: int = 13
+    data_file_save_location = Path('/media/kyle/iuvs/data')
 
     #pu.spice.clear_existing_kernels()
     #pu.spice.furnish_standard_kernels(spice_kernel_location)
@@ -23,27 +26,52 @@ if __name__ == '__main__':
 
     def batch_process_orbit(orbit: int) -> None:
         print(orbit)
-        file = open_latest_file(orbit, data_file_save_location)
+        try:
+            file = open_latest_file(orbit, version, data_file_save_location)
+        except FileExistsError:
+            return
         add_orbit_attribute_to_file(file, orbit)
+        add_version_attribute_to_file(file, version)
 
         for segment in ['apoapse']:
-            file.require_group(f'{segment}')
+            file.create_group(f'{segment}')
 
             match segment:
                 case 'apoapse':
                     # Get some data to work with. For FUV/MUV independent data, just choose either channel
-                    hduls = get_apoapse_muv_fits_files(iuvs_fits_file_location, orbit)
+                    hduls = get_apoapse_muv_fits_files(iuvs_fits_file_location, orbit)  # TODO: filter out outbound data files labeled apoapse...
 
                     #file.create_group('apoapse/apsis')
                     #apoapse.apsis.add_apsis_data_to_file(file, approximate_apoapsis_ephemeris_times)
 
                     apoapse_integration_path = 'apoapse/integration'
-                    file.require_group(apoapse_integration_path)
-                    apoapse.integration.add_channel_independent_integration_data_to_file(file, hduls, orbit)
-                    '''
-                    file.create_group('apoapse/spacecraft_geometry')
-                    apoapse.spacecraft_geometry.add_spacecraft_geometry_data_to_file(file, hduls)
+                    file.create_group(apoapse_integration_path)
+                    integration.add_ephemeris_time_to_file(file, apoapse_integration_path, hduls)
+                    integration.add_mirror_data_number_to_file(file, apoapse_integration_path, hduls)
+                    integration.add_field_of_view_to_file(file, apoapse_integration_path, hduls)
+                    integration.add_case_temperature_to_file(file, apoapse_integration_path, hduls)
+                    integration.add_integration_time_to_file(file, apoapse_integration_path, hduls)
+                    integration.add_data_file_to_file(file, apoapse_integration_path, hduls)
+                    integration.add_apoapse_swath_number_to_file(file, apoapse_integration_path, orbit)
+                    integration.add_apoapse_number_of_swaths_to_file(file, apoapse_integration_path, orbit)
+                    integration.add_opportunity_classification_to_file(file, apoapse_integration_path)
 
+                    apoapse_spacecraft_geometry_path = 'apoapse/spacecraft_geometry'
+                    file.create_group(apoapse_integration_path)
+                    spacecraft_geometry_pipeline.add_subsolar_latitude_to_file(file, apoapse_spacecraft_geometry_path, hduls)
+                    spacecraft_geometry_pipeline.add_subsolar_longitude_to_file(file, apoapse_spacecraft_geometry_path, hduls)
+                    spacecraft_geometry_pipeline.add_subspacecraft_latitude_to_file(file, apoapse_spacecraft_geometry_path, hduls)
+                    spacecraft_geometry_pipeline.add_subspacecraft_longitude_to_file(file, apoapse_spacecraft_geometry_path, hduls)
+                    spacecraft_geometry_pipeline.add_subspacecraft_altitude_to_file(file, apoapse_spacecraft_geometry_path, hduls)
+
+                    apoapse_instrument_geometry_path = 'apoapse/instrument_geometry'
+                    file.create_group(apoapse_instrument_geometry_path)
+                    instrument_geometry_pipeline.add_instrument_sun_angle_to_file(file, apoapse_instrument_geometry_path, hduls)
+                    instrument_geometry_pipeline.add_spacecraft_velocity_inertial_frame_to_file(file, apoapse_instrument_geometry_path, hduls)
+                    instrument_geometry_pipeline.add_instrument_x_field_of_view_to_file(file, apoapse_instrument_geometry_path, hduls)
+                    instrument_geometry_pipeline.add_app_flip_to_file(file, apoapse_instrument_geometry_path)
+
+                    '''
                     for channel in ['muv']:
                         file.create_group(f'{segment}/{channel}')
 
