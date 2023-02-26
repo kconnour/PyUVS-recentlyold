@@ -116,3 +116,7 @@ latest_hdul_file_version: int = 13
 gravity: float = 3.72076
 """The gravitational constant on Mars.
 """
+
+apoapse_muv_failsafe_voltage: float = 497.63803
+"""The voltage of the failsafe mode.
+"""

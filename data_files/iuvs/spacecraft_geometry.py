@@ -2,7 +2,7 @@ from astropy.io import fits
 from h5py import File
 
 from iuvs_fits import get_subsolar_latitude, get_subsolar_longitude, get_subspacecraft_latitude, \
-    get_subspacecraft_longitude, get_subspacecraft_altitude
+    get_subspacecraft_longitude, get_subspacecraft_altitude, get_spacecraft_velocity_inertial_frame
 from hdf5_options import compression, compression_opts
 import units
 
@@ -40,3 +40,10 @@ def add_subspacecraft_altitude_to_file(file: File, group_path: str, hduls: list[
     dataset = file[group_path].create_dataset('subspacecraft_altitude', data=data,
                                               compression=compression, compression_opts=compression_opts)
     dataset.attrs['unit'] = units.altitude
+
+
+def add_spacecraft_velocity_inertial_frame_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
+    data = get_spacecraft_velocity_inertial_frame(hduls)
+    dataset = file[group_path].create_dataset('spacecraft_velocity_inertial_frame', data=data,
+                                              compression=compression, compression_opts=compression_opts)
+    dataset.attrs['unit'] = units.velocity

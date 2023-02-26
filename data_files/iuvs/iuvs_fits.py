@@ -79,16 +79,6 @@ def get_integration_case_temperature(hduls: list[fits.hdu.hdulist.HDUList]) -> n
 
 ### Spacecraft geometry ###
 @catch_empty_arrays
-def get_subspacecraft_latitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    return np.concatenate([f['spacecraftgeometry'].data['sub_spacecraft_lat'] for f in hduls])
-
-
-@catch_empty_arrays
-def get_subspacecraft_longitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    return np.concatenate([f['spacecraftgeometry'].data['sub_spacecraft_lon'] for f in hduls])
-
-
-@catch_empty_arrays
 def get_subsolar_latitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
     return np.concatenate([f['spacecraftgeometry'].data['sub_solar_lat'] for f in hduls])
 
@@ -99,15 +89,26 @@ def get_subsolar_longitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
 
 
 @catch_empty_arrays
+def get_subspacecraft_latitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([f['spacecraftgeometry'].data['sub_spacecraft_lat'] for f in hduls])
+
+
+@catch_empty_arrays
+def get_subspacecraft_longitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([f['spacecraftgeometry'].data['sub_spacecraft_lon'] for f in hduls])
+
+
+@catch_empty_arrays
 def get_subspacecraft_altitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
     return np.concatenate([f['spacecraftgeometry'].data['spacecraft_alt'] for f in hduls])
 
 
 @catch_empty_arrays
-def add_spacecraft_velocity_inertial_frame(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+def get_spacecraft_velocity_inertial_frame(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
     return np.concatenate([f['spacecraftgeometry'].data['v_spacecraft_rate_inertial'] for f in hduls])
 
 
+### Instrument geometry ###
 @catch_empty_arrays
 def get_instrument_x_field_of_view(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
     return np.concatenate([f['spacecraftgeometry'].data['vx_instrument_inertial'] for f in hduls])

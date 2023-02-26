@@ -69,11 +69,11 @@ def make_opportunity_classification(field_of_view: np.ndarray, swath_number: np.
     opportunity_integrations = np.empty(swath_number.shape, dtype='bool')
     for sn in np.unique(swath_number):
         angles = field_of_view[swath_number == sn]
-        relay = convert_mirror_angles_to_field_of_view(minimum_mirror_angle) in angles and \
-                convert_mirror_angles_to_field_of_view(maximum_mirror_angle) in angles
+        relay = minimum_mirror_angle * 2 in angles and maximum_mirror_angle * 2 in angles
         opportunity_integrations[swath_number == sn] = relay
     return opportunity_integrations
 
 
-def get_apoapse_opportunity_classification():
-    pass
+def get_apoapse_opportunity_classification(field_of_view: np.ndarray, swath_number: np.ndarray) -> np.ndarray:
+    # I may add an "orbit" input value if necessary.
+    return make_opportunity_classification(field_of_view, swath_number)

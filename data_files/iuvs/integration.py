@@ -1,13 +1,17 @@
 from astropy.io import fits
 from h5py import File
 
+from experiment import apoapse_muv_failsafe_integrations, apoapse_muv_dayside_integrations, \
+    apoapse_muv_nightside_integrations
 from hdf5_options import compression, compression_opts
 from iuvs_fits import get_integration_ephemeris_time, get_integration_mirror_data_number, get_integration_field_of_view, \
-    get_integration_case_temperature, get_integration_time, get_data_file_number
+    get_integration_case_temperature, get_integration_time, get_data_file_number, get_integration_detector_temperature, \
+    get_mcp_voltage, get_mcp_voltage_gain
 from swath import get_apoapse_swath_number, get_apoapse_number_of_swaths, get_apoapse_opportunity_classification
 import units
 
 
+### Channel-independent arrays ###
 def add_ephemeris_time_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
     data = get_integration_ephemeris_time(hduls)
     dataset = file[group_path].create_dataset('ephemeris_time', data=data, compression=compression,
@@ -76,3 +80,46 @@ def add_opportunity_classification_to_file(file: File, group_path: str) -> None:
     dataset = file[group_path].create_dataset('opportunity', data=data, compression=compression,
                                               compression_opts=compression_opts)
     dataset.attrs['comment'] = 'True if an opportunistic observation; False otherwise.'
+
+
+### Channel-dependent arrays ###
+def add_detector_temperature_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
+    data = get_integration_detector_temperature(hduls)
+    dataset = file[group_path].create_dataset('detector_temperature', data=data, compression=compression,
+                                              compression_opts=compression_opts)
+    dataset.attrs['unit'] = units.temperature
+
+
+def add_mcp_voltage_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
+    data = get_mcp_voltage(hduls)
+    dataset = file[group_path].create_dataset('mcp_voltage', data=data, compression=compression,
+                                              compression_opts=compression_opts)
+    dataset.attrs['unit'] = units.voltage
+
+
+def add_mcp_voltage_gain_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
+    data = get_mcp_voltage_gain(hduls)
+    dataset = file[group_path].create_dataset('mcp_voltage_gain', data=data, compression=compression,
+                                              compression_opts=compression_opts)
+    dataset.attrs['unit'] = units.voltage
+
+
+def add_apoapse_muv_failsafe_integrations_to_file(file: File, group_path: str) -> None:
+    mcp_voltage = file[f'{group_path}/mcp_voltage'][:]
+    data = apoapse_muv_failsafe_integrations(mcp_voltage)
+    dataset = file[group_path].create_dataset('failsafe', data=data, compression=compression,
+                                              compression_opts=compression_opts)
+
+
+def add_apoapse_muv_dayside_integrations_to_file(file: File, group_path: str) -> None:
+    mcp_voltage = file[f'{group_path}/mcp_voltage'][:]
+    data = apoapse_muv_dayside_integrations(mcp_voltage)
+    dataset = file[group_path].create_dataset('dayside', data=data, compression=compression,
+                                              compression_opts=compression_opts)
+
+
+def add_apoapse_muv_nightside_integrations_to_file(file: File, group_path: str) -> None:
+    mcp_voltage = file[f'{group_path}/mcp_voltage'][:]
+    data = apoapse_muv_nightside_integrations(mcp_voltage)
+    dataset = file[group_path].create_dataset('nightside', data=data, compression=compression,
+                                              compression_opts=compression_opts)
