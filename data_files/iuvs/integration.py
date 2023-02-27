@@ -1,22 +1,61 @@
 from astropy.io import fits
-from h5py import File
+import numpy as np
 
-from experiment import apoapse_muv_failsafe_integrations, apoapse_muv_dayside_integrations, \
-    apoapse_muv_nightside_integrations
-from hdf5_options import compression, compression_opts
-from iuvs_fits import get_integration_ephemeris_time, get_integration_mirror_data_number, get_integration_field_of_view, \
-    get_integration_case_temperature, get_integration_time, get_data_file_number, get_integration_detector_temperature, \
-    get_mcp_voltage, get_mcp_voltage_gain
-from swath import get_apoapse_swath_number, get_apoapse_number_of_swaths, get_apoapse_opportunity_classification
-import units
+from iuvs_fits import catch_empty_arrays, get_integration_timestamp, get_integration_ephemeris_time, \
+    get_integration_mirror_data_number, get_integration_mirror_angle, get_integration_detector_temperature, get_integration_case_temperature
+
+
+@catch_empty_arrays
+def make_timestamp(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([get_integration_timestamp(f) for f in hduls])
+
+
+@catch_empty_arrays
+def make_ephemeris_time(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([get_integration_ephemeris_time(f) for f in hduls])
+
+
+
+
+
+'''@catch_empty_arrays
+def get_integration_utc(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([f['integration'].data['utc'] for f in hduls])
+
+
+@catch_empty_arrays
+def get_integration_mirror_data_number(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([f['integration'].data['mirror_dn'] for f in hduls])
+
+
+@catch_empty_arrays
+def get_integration_mirror_angle(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([f['integration'].data['mirror_deg'] for f in hduls])
+
+
+@catch_empty_arrays
+def get_integration_field_of_view(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([f['integration'].data['fov_deg'] for f in hduls])
+
+
+@catch_empty_arrays
+def get_integration_lyman_alpha_centroid(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    # As of v13 IUVS data, this array is populated with junk data
+    return np.concatenate([f['integration'].data['lya_centroid'] for f in hduls])
+
+
+@catch_empty_arrays
+def get_integration_detector_temperature(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([f['integration'].data['det_temp_c'] for f in hduls])
+
+
+@catch_empty_arrays
+def get_integration_case_temperature(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([f['integration'].data['case_temp_c'] for f in hduls])
 
 
 ### Channel-independent arrays ###
-def add_ephemeris_time_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
-    data = get_integration_ephemeris_time(hduls)
-    dataset = file[group_path].create_dataset('ephemeris_time', data=data, compression=compression,
-                                              compression_opts=compression_opts)
-    dataset.attrs['unit'] = units.ephemeris_time
+
 
 
 def add_mirror_data_number_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
@@ -122,4 +161,4 @@ def add_apoapse_muv_nightside_integrations_to_file(file: File, group_path: str) 
     mcp_voltage = file[f'{group_path}/mcp_voltage'][:]
     data = apoapse_muv_nightside_integrations(mcp_voltage)
     dataset = file[group_path].create_dataset('nightside', data=data, compression=compression,
-                                              compression_opts=compression_opts)
+                                              compression_opts=compression_opts)'''

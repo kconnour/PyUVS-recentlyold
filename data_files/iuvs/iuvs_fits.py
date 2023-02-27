@@ -30,51 +30,82 @@ def get_detector_primary(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> n
     return np.concatenate(data)
 
 
+@catch_empty_arrays
+def get_detector_raw(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
+    data = [f['detector_raw'].data for f in hduls]
+    data = add_leading_dimension_if_necessary(data, 3)
+    data = app_flip(data, flip)
+    return np.concatenate(data)
+
+
+@catch_empty_arrays
+def get_detector_dark_subtracted(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
+    data = [f['detector_dark_subtracted'].data for f in hduls]
+    data = add_leading_dimension_if_necessary(data, 3)
+    data = app_flip(data, flip)
+    return np.concatenate(data)
+
+
+@catch_empty_arrays
+def get_detector_random_data_number_uncertainty(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
+    data = [f['random_dn_unc'].data for f in hduls]
+    data = add_leading_dimension_if_necessary(data, 3)
+    data = app_flip(data, flip)
+    return np.concatenate(data)
+
+
+@catch_empty_arrays
+def get_detector_random_physical_uncertainty(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
+    data = [f['random_phy_unc'].data for f in hduls]
+    data = add_leading_dimension_if_necessary(data, 3)
+    data = app_flip(data, flip)
+    return np.concatenate(data)
+
+
+@catch_empty_arrays
+def get_detector_systematic_physical_uncertainty(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
+    data = [f['systematic_phy_unc'].data for f in hduls]
+    data = add_leading_dimension_if_necessary(data, 3)
+    data = app_flip(data, flip)
+    return np.concatenate(data)
+
+
 ### Integration ###
-@catch_empty_arrays
-def get_integration_timestamp(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    return np.concatenate([f['integration'].data['timestamp'] for f in hduls])
+def get_integration_timestamp(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['integration'].data['timestamp']
 
 
-@catch_empty_arrays
-def get_integration_ephemeris_time(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    return np.concatenate([f['integration'].data['et'] for f in hduls])
+def get_integration_ephemeris_time(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['integration'].data['et']
 
 
-@catch_empty_arrays
-def get_integration_utc(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    return np.concatenate([f['integration'].data['utc'] for f in hduls])
+def get_integration_utc(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['integration'].data['utc']
 
 
-@catch_empty_arrays
-def get_integration_mirror_data_number(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    return np.concatenate([f['integration'].data['mirror_dn'] for f in hduls])
+def get_integration_mirror_data_number(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['integration'].data['mirror_dn']
 
 
-@catch_empty_arrays
-def get_integration_mirror_angle(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    return np.concatenate([f['integration'].data['mirror_deg'] for f in hduls])
+def get_integration_mirror_angle(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['integration'].data['mirror_deg']
 
 
-@catch_empty_arrays
-def get_integration_field_of_view(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    return np.concatenate([f['integration'].data['fov_deg'] for f in hduls])
+def get_integration_field_of_view(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['integration'].data['fov_deg']
 
 
-@catch_empty_arrays
-def get_integration_lyman_alpha_centroid(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+def get_integration_lyman_alpha_centroid(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
     # As of v13 IUVS data, this array is populated with junk data
-    return np.concatenate([f['integration'].data['lya_centroid'] for f in hduls])
+    return hdul['integration'].data['lya_centroid']
 
 
-@catch_empty_arrays
-def get_integration_detector_temperature(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    return np.concatenate([f['integration'].data['det_temp_c'] for f in hduls])
+def get_integration_detector_temperature(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['integration'].data['det_temp_c']
 
 
-@catch_empty_arrays
-def get_integration_case_temperature(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    return np.concatenate([f['integration'].data['case_temp_c'] for f in hduls])
+def get_integration_case_temperature(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['integration'].data['case_temp_c']
 
 
 ### Spacecraft geometry ###
@@ -226,25 +257,21 @@ def get_spatial_bin_vector(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) ->
 
 
 ### Observation ###
-@catch_empty_arrays
-def get_mcp_voltage(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    integrations_per_file = get_integrations_per_file(hduls)
-    data = [f['observation'].data['mcp_volt'] for f in hduls]
-    return np.repeat(data, integrations_per_file)
+def get_channel(hdul: fits.hdu.hdulist.HDUList) -> float:
+    return hdul['observation'].data['channel'][0]
 
 
-@catch_empty_arrays
-def get_mcp_voltage_gain(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    integrations_per_file = get_integrations_per_file(hduls)
-    data = [f['observation'].data['mcp_gain'] for f in hduls]
-    return np.repeat(data, integrations_per_file)
+def get_mcp_voltage(hdul: fits.hdu.hdulist.HDUList) -> float:
+    return hdul['observation'].data['mcp_volt'][0]
 
 
-@catch_empty_arrays
-def get_integration_time(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
-    integrations_per_file = get_integrations_per_file(hduls)
-    data = [f['observation'].data['int_time'] for f in hduls]
-    return np.repeat(data, integrations_per_file)
+def get_mcp_voltage_gain(hdul: fits.hdu.hdulist.HDUList) -> float:
+    return hdul['observation'].data['mcp_gain'][0]
+
+
+def get_observation_id(hdul: fits.hdu.hdulist.HDUList) -> int:
+    # This is found here and nowhere else to my knowledge
+    return hdul['primary'].header['obs_id']
 
 
 ### Oddball ###
