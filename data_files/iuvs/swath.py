@@ -5,7 +5,7 @@ import numpy as np
 from pyuvs import minimum_mirror_angle, maximum_mirror_angle
 
 
-def compute_swath_number(mirror_angles: np.ndarray) -> np.ndarray:
+def compute_swath_number(mirror_angle: np.ndarray) -> np.ndarray:
     """Make the swath number associated with each mirror angle.
 
     This function assumes the input is all the mirror angles (or, equivalently,
@@ -29,19 +29,19 @@ def compute_swath_number(mirror_angles: np.ndarray) -> np.ndarray:
     """
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
-        mirror_change = np.diff(mirror_angles)
+        mirror_change = np.diff(mirror_angle)
         threshold = np.abs(np.median(mirror_change)) * 4
         mirror_discontinuities = np.where(np.abs(mirror_change) > threshold)[0] + 1
         if any(mirror_discontinuities):
             n_swaths = len(mirror_discontinuities) + 1
-            integrations = range(len(mirror_angles))
+            integrations = range(len(mirror_angle))
             interp_swaths = np.interp(integrations, mirror_discontinuities, range(1, n_swaths), left=0)
             return np.floor(interp_swaths).astype('int')
         else:
-            return np.zeros(mirror_angles.shape)
+            return np.zeros(mirror_angle.shape)
 
 
-def get_apoapse_swath_number(field_of_view: np.ndarray, orbit: int) -> np.ndarray:
+def make_apoapse_swath_number(field_of_view: np.ndarray, orbit: int) -> np.ndarray:
     swath_number = compute_swath_number(field_of_view)
     if orbit in [3009, 3043]:
         swath_number += 1
@@ -50,12 +50,12 @@ def get_apoapse_swath_number(field_of_view: np.ndarray, orbit: int) -> np.ndarra
     return swath_number
 
 
-def get_number_of_swaths(swath_number: np.ndarray) -> np.ndarray:
+def make_number_of_swaths(swath_number: np.ndarray) -> np.ndarray:
     return np.array([swath_number[-1] + 1]) if swath_number.size > 0 else np.array([])
 
 
-def get_apoapse_number_of_swaths(swath_number: np.ndarray, orbit: int) -> np.ndarray:
-    number_of_swaths = get_number_of_swaths(swath_number)
+def make_apoapse_number_of_swaths(swath_number: np.ndarray, orbit: int) -> np.ndarray:
+    number_of_swaths = make_number_of_swaths(swath_number)
     if orbit in [3115, 3174, 3211, 3229, 3248, 3375, 3488, 3688, 3692]:
         number_of_swaths += 1
     elif orbit in [3456, 3581]:
@@ -65,15 +65,15 @@ def get_apoapse_number_of_swaths(swath_number: np.ndarray, orbit: int) -> np.nda
     return number_of_swaths
 
 
-def make_opportunity_classification(field_of_view: np.ndarray, swath_number: np.ndarray) -> np.ndarray:
+def make_opportunity_classification(mirror_angle: np.ndarray, swath_number: np.ndarray) -> np.ndarray:
     opportunity_integrations = np.empty(swath_number.shape, dtype='bool')
     for sn in np.unique(swath_number):
-        angles = field_of_view[swath_number == sn]
-        relay = minimum_mirror_angle * 2 in angles and maximum_mirror_angle * 2 in angles
+        angles = mirror_angle[swath_number == sn]
+        relay = minimum_mirror_angle in angles and maximum_mirror_angle in angles
         opportunity_integrations[swath_number == sn] = relay
     return opportunity_integrations
 
 
-def get_apoapse_opportunity_classification(field_of_view: np.ndarray, swath_number: np.ndarray) -> np.ndarray:
+def make_apoapse_opportunity_classification(field_of_view: np.ndarray, swath_number: np.ndarray, orbit: int) -> np.ndarray:
     # I may add an "orbit" input value if necessary.
     return make_opportunity_classification(field_of_view, swath_number)

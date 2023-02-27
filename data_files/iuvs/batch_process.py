@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from file_setup import open_latest_file, add_orbit_attribute_to_file, add_version_attribute_to_file
+import file_datasets
+import file_setup
 import fits_sort
 
 # Note: I absolutely cannot think of a way to version each array in a smart way. The code just gets out of control
@@ -21,11 +22,11 @@ if __name__ == '__main__':
     def batch_process_orbit(orbit: int) -> None:
         print(orbit)
         try:
-            file = open_latest_file(orbit, version, data_file_save_location)
+            file = file_setup.open_latest_file(orbit, version, data_file_save_location)
         except FileExistsError:
             return
-        add_orbit_attribute_to_file(file, orbit)
-        add_version_attribute_to_file(file, version)
+        file_setup.add_orbit_attribute_to_file(file, orbit)
+        file_setup.add_version_attribute_to_file(file, version)
 
         for segment in ['apoapse']:
             segment_path = f'{segment}'
@@ -42,15 +43,16 @@ if __name__ == '__main__':
 
                     integration_path = f'{segment_path}/integration'
                     file.create_group(integration_path)
-                    '''integration.add_ephemeris_time_to_file(file, apoapse_integration_path, hduls)
-                    integration.add_mirror_data_number_to_file(file, apoapse_integration_path, hduls)
-                    integration.add_field_of_view_to_file(file, apoapse_integration_path, hduls)
-                    integration.add_case_temperature_to_file(file, apoapse_integration_path, hduls)
-                    integration.add_integration_time_to_file(file, apoapse_integration_path, hduls)
-                    integration.add_data_file_to_file(file, apoapse_integration_path, hduls)
-                    integration.add_apoapse_swath_number_to_file(file, apoapse_integration_path, orbit)
-                    integration.add_apoapse_number_of_swaths_to_file(file, apoapse_integration_path, orbit)
-                    integration.add_opportunity_classification_to_file(file, apoapse_integration_path)'''
+                    file_datasets.add_ephemeris_time_to_file(file, integration_path, segment_hduls)
+                    file_datasets.add_mirror_data_number_to_file(file, integration_path, segment_hduls)
+                    file_datasets.add_mirror_angle_to_file(file, integration_path, segment_hduls)
+                    file_datasets.add_field_of_view_to_file(file, integration_path)
+                    file_datasets.add_case_temperature_to_file(file, integration_path, segment_hduls)
+                    file_datasets.add_integration_time_to_file(file, integration_path, segment_hduls)
+                    file_datasets.add_data_file_number_to_file(file, integration_path, segment_hduls)
+                    file_datasets.add_apoapse_swath_number_to_file(file, integration_path, orbit)
+                    file_datasets.add_apoapse_number_of_swaths_to_file(file, integration_path, orbit)
+                    file_datasets.add_apoapse_opportunity_classification_to_file(file, integration_path, orbit)
 
                     spacecraft_geometry_path = f'{segment_path}/spacecraft_geometry'
                     file.create_group(spacecraft_geometry_path)

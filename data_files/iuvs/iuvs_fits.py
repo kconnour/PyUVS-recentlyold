@@ -261,6 +261,10 @@ def get_channel(hdul: fits.hdu.hdulist.HDUList) -> float:
     return hdul['observation'].data['channel'][0]
 
 
+def get_integration_time(hdul: fits.hdu.hdulist.HDUList) -> float:
+    return hdul['observation'].data['int_time'][0]
+
+
 def get_mcp_voltage(hdul: fits.hdu.hdulist.HDUList) -> float:
     return hdul['observation'].data['mcp_volt'][0]
 
