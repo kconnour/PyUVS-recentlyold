@@ -1,49 +1,34 @@
 from astropy.io import fits
-from h5py import File
+import numpy as np
 
-from iuvs_fits import get_subsolar_latitude, get_subsolar_longitude, get_subspacecraft_latitude, \
-    get_subspacecraft_longitude, get_subspacecraft_altitude, get_spacecraft_velocity_inertial_frame
-from hdf5_options import compression, compression_opts
-import units
+import iuvs_fits
 
 
-def add_subsolar_latitude_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
-    data = get_subsolar_latitude(hduls)
-    dataset = file[group_path].create_dataset('subsolar_latitude', data=data,
-                                              compression=compression, compression_opts=compression_opts)
-    dataset.attrs['unit'] = units.latitude
+@iuvs_fits.catch_empty_arrays
+def make_subsolar_latitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([iuvs_fits.get_subsolar_latitude(f) for f in hduls])
 
 
-def add_subsolar_longitude_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
-    data = get_subsolar_longitude(hduls)
-    dataset = file[group_path].create_dataset('subsolar_longitude', data=data,
-                                              compression=compression, compression_opts=compression_opts)
-    dataset.attrs['unit'] = units.longitude
+@iuvs_fits.catch_empty_arrays
+def make_subsolar_longitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([iuvs_fits.get_subsolar_longitude(f) for f in hduls])
 
 
-def add_subspacecraft_latitude_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
-    data = get_subspacecraft_latitude(hduls)
-    dataset = file[group_path].create_dataset('subspacecraft_latitude', data=data,
-                                              compression=compression, compression_opts=compression_opts)
-    dataset.attrs['unit'] = units.latitude
+@iuvs_fits.catch_empty_arrays
+def make_subspacecraft_latitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([iuvs_fits.get_subspacecraft_latitude(f) for f in hduls])
 
 
-def add_subspacecraft_longitude_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
-    data = get_subspacecraft_longitude(hduls)
-    dataset = file[group_path].create_dataset('subspacecraft_longitude', data=data,
-                                              compression=compression, compression_opts=compression_opts)
-    dataset.attrs['unit'] = units.longitude
+@iuvs_fits.catch_empty_arrays
+def make_subspacecraft_longitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([iuvs_fits.get_subspacecraft_longitude(f) for f in hduls])
 
 
-def add_subspacecraft_altitude_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
-    data = get_subspacecraft_altitude(hduls)
-    dataset = file[group_path].create_dataset('subspacecraft_altitude', data=data,
-                                              compression=compression, compression_opts=compression_opts)
-    dataset.attrs['unit'] = units.altitude
+@iuvs_fits.catch_empty_arrays
+def make_subspacecraft_altitude(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([iuvs_fits.get_subspacecraft_altitude(f) for f in hduls])
 
 
-def add_spacecraft_velocity_inertial_frame_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
-    data = get_spacecraft_velocity_inertial_frame(hduls)
-    dataset = file[group_path].create_dataset('spacecraft_velocity_inertial_frame', data=data,
-                                              compression=compression, compression_opts=compression_opts)
-    dataset.attrs['unit'] = units.velocity
+@iuvs_fits.catch_empty_arrays
+def make_spacecraft_velocity_inertial_frame(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([iuvs_fits.get_spacecraft_velocity_inertial_frame(f) for f in hduls])

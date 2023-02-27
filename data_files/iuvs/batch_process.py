@@ -56,18 +56,18 @@ if __name__ == '__main__':
 
                     spacecraft_geometry_path = f'{segment_path}/spacecraft_geometry'
                     file.create_group(spacecraft_geometry_path)
-                    '''spacecraft_geometry.add_subsolar_latitude_to_file(file, apoapse_spacecraft_geometry_path, hduls)
-                    spacecraft_geometry.add_subsolar_longitude_to_file(file, apoapse_spacecraft_geometry_path, hduls)
-                    spacecraft_geometry.add_subspacecraft_latitude_to_file(file, apoapse_spacecraft_geometry_path, hduls)
-                    spacecraft_geometry.add_subspacecraft_longitude_to_file(file, apoapse_spacecraft_geometry_path, hduls)
-                    spacecraft_geometry.add_subspacecraft_altitude_to_file(file, apoapse_spacecraft_geometry_path, hduls)
-                    spacecraft_geometry.add_spacecraft_velocity_inertial_frame_to_file(file, apoapse_spacecraft_geometry_path, hduls)'''
+                    file_datasets.add_subsolar_latitude_to_file(file, spacecraft_geometry_path, segment_hduls)
+                    file_datasets.add_subsolar_longitude_to_file(file, spacecraft_geometry_path, segment_hduls)
+                    file_datasets.add_subspacecraft_latitude_to_file(file, spacecraft_geometry_path, segment_hduls)
+                    file_datasets.add_subspacecraft_longitude_to_file(file, spacecraft_geometry_path, segment_hduls)
+                    file_datasets.add_subspacecraft_altitude_to_file(file, spacecraft_geometry_path, segment_hduls)
+                    file_datasets.add_spacecraft_velocity_inertial_frame_to_file(file, spacecraft_geometry_path, segment_hduls)
 
                     instrument_geometry_path = f'{segment_path}/instrument_geometry'
                     file.create_group(instrument_geometry_path)
-                    '''instrument_geometry.add_instrument_x_field_of_view_to_file(file, apoapse_instrument_geometry_path, hduls)
-                    instrument_geometry.add_instrument_sun_angle_to_file(file, apoapse_instrument_geometry_path, hduls)
-                    instrument_geometry.add_app_flip_to_file(file, apoapse_instrument_geometry_path)'''
+                    file_datasets.add_instrument_x_field_of_view_to_file(file, instrument_geometry_path, segment_hduls)
+                    file_datasets.add_instrument_sun_angle_to_file(file, instrument_geometry_path, segment_hduls)
+                    file_datasets.add_app_flip_to_file(file, instrument_geometry_path, spacecraft_geometry_path)
 
                     for channel in ['muv']:
                         channel_path = f'{segment}/{channel}'
@@ -80,13 +80,12 @@ if __name__ == '__main__':
 
                                 channel_integration_path = f'{channel_path}/integration'
                                 file.create_group(channel_integration_path)
-                                '''integration.add_detector_temperature_to_file(file, apoapse_muv_integration_path, apoapse_muv_hduls)
-                                integration.add_mcp_voltage_to_file(file, apoapse_muv_integration_path, apoapse_muv_hduls)
-                                integration.add_mcp_voltage_gain_to_file(file, apoapse_muv_integration_path, apoapse_muv_hduls)
-                                integration.add_apoapse_muv_failsafe_integrations_to_file(file, apoapse_muv_integration_path)
-                                integration.add_apoapse_muv_dayside_integrations_to_file(file, apoapse_muv_integration_path)
-                                integration.add_apoapse_muv_nightside_integrations_to_file(file, apoapse_muv_integration_path)'''
-
+                                file_datasets.add_detector_temperature_to_file(file, channel_integration_path, apoapse_muv_hduls)
+                                file_datasets.add_mcp_voltage_to_file(file, channel_integration_path, apoapse_muv_hduls)
+                                file_datasets.add_mcp_voltage_gain_to_file(file, channel_integration_path, apoapse_muv_hduls)
+                                file_datasets.add_apoapse_muv_failsafe_integrations_to_file(file, channel_integration_path)
+                                file_datasets.add_apoapse_muv_dayside_integrations_to_file(file, channel_integration_path)
+                                file_datasets.add_apoapse_muv_nightside_integrations_to_file(file, channel_integration_path)
 
                                 for experiment in ['failsafe', 'dayside', 'nightside']:
                                     experiment_path = f'{segment}/{channel}/{experiment}'

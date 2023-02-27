@@ -1,29 +1,23 @@
 from astropy.io import fits
-from h5py import File
+import numpy as np
 
-from app import compute_apoapse_app_flip
-from iuvs_fits import get_instrument_x_field_of_view, get_instrument_sun_angle
-from hdf5_options import compression, compression_opts
-import units
+import iuvs_fits
 
 
-def add_instrument_x_field_of_view_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
-    data = get_instrument_x_field_of_view(hduls)
-    dataset = file[group_path].create_dataset('instrument_x_field_of_view', data=data, compression=compression,
-                                              compression_opts=compression_opts)
-    dataset.attrs['unit'] = units.field_of_view
+@iuvs_fits.catch_empty_arrays
+def make_instrument_x_field_of_view(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([iuvs_fits.get_instrument_x_field_of_view(f) for f in hduls])
 
 
-def add_instrument_sun_angle_to_file(file: File, group_path: str, hduls: list[fits.hdu.hdulist.HDUList]) -> None:
-    data = get_instrument_sun_angle(hduls)
-    dataset = file[group_path].create_dataset('instrument_sun_angle', data=data, compression=compression,
-                                              compression_opts=compression_opts)
-    dataset.attrs['unit'] = units.angle
+@iuvs_fits.catch_empty_arrays
+def make_instrument_sun_angle(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarray:
+    return np.concatenate([iuvs_fits.get_instrument_sun_angle(f) for f in hduls])
 
 
-def add_app_flip_to_file(file: File, group_path: str) -> None:
-    vx = file[f'{group_path}/instrument_x_field_of_view']
-    v = file[f'{group_path}/vx_instrument_inertial']
-    data = compute_apoapse_app_flip(vx, v)
-    dataset = file[group_path].create_dataset('app_flip', data=data, compression=compression,
-                                              compression_opts=compression_opts)
+def compute_app_flip(x_field_of_view: np.ndarray, spacecraft_velocity_inertial_frame: np.ndarray) -> np.ndarray:
+    try:
+        dot = x_field_of_view[:, 0] * spacecraft_velocity_inertial_frame[:, 0] > 0
+        app_flip = np.array([np.mean(dot) >= 0.25])
+    except IndexError:
+        app_flip = np.array([])
+    return app_flip
