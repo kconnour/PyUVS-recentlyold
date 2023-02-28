@@ -1,12 +1,28 @@
 from pathlib import Path
+from datetime import datetime
+import multiprocessing as mp
 
 import file_datasets
 import file_setup
 import fits_sort
+import apsis
+import apsis_additions
+import spice
 
 # Note: I absolutely cannot think of a way to version each array in a smart way. The code just gets out of control
 # when thinking that I have to track all the dependencies of a change in the code. Assigning a singular version to the
 # entire file is the only sensible solution I can think of
+
+
+p = Path('/media/kyle/iuvs/production/orbit03000')
+files = sorted(p.glob('*apoapse*orbit03000*muv*.gz'))
+
+'''from astropy.io import fits
+for foo in files:
+    hdul = fits.open(foo)
+    print(hdul['pixelgeometry'].data['pixel_solar_zenith_angle'].shape)
+
+raise SystemExit(9)'''
 
 if __name__ == '__main__':
     version: int = 1
@@ -15,9 +31,9 @@ if __name__ == '__main__':
     spice_kernel_location = Path('/media/kyle/iuvs/spice')
     data_file_save_location = Path('/media/kyle/iuvs/data')
 
-    '''pu.spice.clear_existing_kernels()
-    pu.spice.furnish_standard_kernels(spice_kernel_location)
-    apoapsis_orbits, approximate_apoapsis_ephemeris_times = pu.spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2022, 9, 2), step_size=60)'''
+    spice.clear_existing_kernels()
+    spice.furnish_standard_kernels(spice_kernel_location)
+    apoapsis_orbits, approximate_apoapsis_ephemeris_times = spice.compute_maven_apsis_et(segment='apoapse', end_time=datetime(2022, 9, 2), step_size=60)
 
     def batch_process_orbit(orbit: int) -> None:
         print(orbit)
@@ -39,7 +55,7 @@ if __name__ == '__main__':
 
                     apsis_path = f'{segment_path}/apsis'
                     file.create_group(apsis_path)
-                    '''apoapse.apsis.add_apsis_data_to_file(file, approximate_apoapsis_ephemeris_times)'''
+                    apsis_additions.add_apsis_data_to_file(file, approximate_apoapsis_ephemeris_times)
 
                     integration_path = f'{segment_path}/integration'
                     file.create_group(integration_path)
@@ -102,15 +118,30 @@ if __name__ == '__main__':
 
                                     binning_path = f'{experiment_path}/binning'
                                     file.create_group(binning_path)
-                                    '''apoapse.muv.failsafe.binning.add_binning_data_to_file(file, failsafe_hduls)'''
-
-                                    detector_path = f'{experiment_path}/detector'
-                                    file.create_group(detector_path)
-                                    '''apoapse.muv.failsafe.detector.add_detector_data_to_file(file, failsafe_hduls)'''
+                                    file_datasets.add_spatial_bin_edges(file, binning_path, experiment_hduls)
+                                    file_datasets.add_spectral_bin_edges(file, binning_path, experiment_hduls)
 
                                     spatial_bin_geometry_path = f'{experiment_path}/spatial_bin_geometry'
                                     file.create_group(spatial_bin_geometry_path)
-                                    '''apoapse.muv.failsafe.bin_geometry.add_bin_geometry_data_to_file(file, failsafe_hduls)'''
+                                    file_datasets.add_latitude(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_longitude(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_tangent_altitude(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_tangent_altitude_rate(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_line_of_sight(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_solar_zenith_angle(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_emission_angle(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_phase_angle(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_zenith_angle(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_local_time(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_right_ascension(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_declination(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_bin_vector(file, spatial_bin_geometry_path, instrument_geometry_path, experiment_hduls)
+
+                                    detector_path = f'{experiment_path}/detector'
+                                    file.create_group(detector_path)
+                                    file_datasets.add_raw(file, detector_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_dark_subtracted(file, detector_path, instrument_geometry_path, experiment_hduls)
+                                    file_datasets.add_brightness(file, detector_path, instrument_geometry_path, binning_path, integration_path, channel_integration_path, experiment)
 
                                     match experiment:
                                         case 'dayside':
@@ -124,8 +155,16 @@ if __name__ == '__main__':
                     #  I'm doing it here
                     spatial_pixel_geometry_path = f'{segment}/spatial_pixel_geometry'
                     file.create_group(spatial_pixel_geometry_path)
-                    '''apoapse.pixel_geometry.add_pixel_geometry_data_to_file(file)'''
+                    # TODO: pixel geometry
         file.close()
 
-    for o in range(4000, 4002):
-        batch_process_orbit(o)
+    for orb in [3001, 3004, 3006, 3009]:
+        batch_process_orbit(orb)
+
+    #n_cpus = mp.cpu_count()
+    #pool = mp.Pool(n_cpus -1)
+
+    #for orb in range(3000, 3100):
+        #pool.apply_async(func=batch_process_orbit, args=(orb,))
+    #pool.close()
+    #pool.join()

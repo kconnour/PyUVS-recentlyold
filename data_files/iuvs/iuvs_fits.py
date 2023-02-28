@@ -22,52 +22,28 @@ def get_integrations_per_file(hduls: list[fits.hdu.hdulist.HDUList]) -> list[int
 
 
 ### Detector ###
-@catch_empty_arrays
-def get_detector_primary(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['primary'].data for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_detector_primary(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['primary'].data
 
 
-@catch_empty_arrays
-def get_detector_raw(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['detector_raw'].data for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_detector_raw(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['detector_raw'].data
 
 
-@catch_empty_arrays
-def get_detector_dark_subtracted(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['detector_dark_subtracted'].data for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_detector_dark_subtracted(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['detector_dark_subtracted'].data
 
 
-@catch_empty_arrays
-def get_detector_random_data_number_uncertainty(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['random_dn_unc'].data for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_detector_random_data_number_uncertainty(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['random_dn_unc'].data
 
 
-@catch_empty_arrays
-def get_detector_random_physical_uncertainty(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['random_phy_unc'].data for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_detector_random_physical_uncertainty(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['random_phy_unc'].data
 
 
-@catch_empty_arrays
-def get_detector_systematic_physical_uncertainty(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['systematic_phy_unc'].data for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_detector_systematic_physical_uncertainty(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['systematic_phy_unc'].data
 
 
 ### Integration ###
@@ -151,109 +127,77 @@ def get_instrument_sun_angle(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
 
 
 ### Spatial bin geometry ###
-@catch_empty_arrays
-def get_spatial_bin_latitude(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_corner_lat'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_latitude(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_corner_lat']
 
 
-@catch_empty_arrays
-def get_spatial_bin_longitude(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_corner_lon'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_longitude(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_corner_lon']
 
 
-@catch_empty_arrays
-def get_spatial_bin_tangent_altitude(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_corner_mrh_alt'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_tangent_altitude(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_corner_mrh_alt']
 
 
-@catch_empty_arrays
-def get_spatial_bin_tangent_altitude_rate(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_corner_mrh_alt_rate'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_tangent_altitude_rate(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_corner_mrh_alt_rate']
 
 
-@catch_empty_arrays
-def get_spatial_bin_line_of_sight(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_corner_los'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_line_of_sight(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_corner_los']
 
 
-@catch_empty_arrays
-def get_spatial_bin_solar_zenith_angle(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_solar_zenith_angle'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 2)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_solar_zenith_angle(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_solar_zenith_angle']
 
 
-@catch_empty_arrays
-def get_spatial_bin_emission_angle(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_emission_angle'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 2)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_emission_angle(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_emission_angle']
 
 
-@catch_empty_arrays
-def get_spatial_bin_phase_angle(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_phase_angle'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 2)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_phase_angle(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_phase_angle']
 
 
-@catch_empty_arrays
-def get_spatial_bin_zenith_angle(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_zenith_angle'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 2)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_zenith_angle(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_zenith_angle']
 
 
-@catch_empty_arrays
-def get_spatial_bin_local_time(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_local_time'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 2)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_local_time(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_local_time']
 
 
-@catch_empty_arrays
-def get_spatial_bin_right_ascension(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_corner_ra'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_right_ascension(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_corner_ra']
 
 
-@catch_empty_arrays
-def get_spatial_bin_declination(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_corner_dec'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 3)
-    data = app_flip(data, flip)
-    return np.concatenate(data)
+def get_spatial_bin_declination(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_corner_dec']
 
 
-@catch_empty_arrays
-def get_spatial_bin_vector(hduls: list[fits.hdu.hdulist.HDUList], flip: bool) -> np.ndarray:
-    data = [f['pixelgeometry'].data['pixel_vec'] for f in hduls]
-    data = add_leading_dimension_if_necessary(data, 4)
-    data = app_flip(data, flip)
-    data = np.concatenate(data)
-    return np.moveaxis(data, 1, -1)
+def get_spatial_bin_vector(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    return hdul['pixelgeometry'].data['pixel_vec']
+
+
+### Binning ###
+def get_spatial_pixel_low(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    # The data is natively (1, n_spatial_bins)
+    return hdul['binning'].data['spapixlo'][0]
+
+
+def get_spatial_pixel_high(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    # The data is natively (1, n_spatial_bins)
+    return hdul['binning'].data['spapixhi'][0]
+
+
+def get_spectral_pixel_low(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    # The data is natively (1, n_spectral_bins)
+    return hdul['binning'].data['spepixlo'][0]
+
+
+def get_spectral_pixel_high(hdul: fits.hdu.hdulist.HDUList) -> np.ndarray:
+    # The data is natively (1, n_spectral_bins)
+    return hdul['binning'].data['spepixhi'][0]
 
 
 ### Observation ###

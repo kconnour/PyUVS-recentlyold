@@ -17,6 +17,12 @@ if __name__ == '__main__':
     dust_target_wavelength = 0.25
     ice_target_wavelength = 0.25
 
+    file0 = Dataset('/home/kyle/iuvs/ames/sim2/c48L36_my30_A.03704.atmos_diurn.nc')
+    for f in file0.variables:
+        print(f)
+
+    raise SystemExit(9)
+
     # Make the arrays that define the model grid
     model_grid = file.create_group('grid')
     ds = model_grid.create_dataset('latitude_centers', data=arrays.make_latitude_centers(gcm))

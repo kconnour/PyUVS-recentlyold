@@ -146,7 +146,7 @@ if __name__ == '__main__':
     n_cpus = mp.cpu_count()
     pool = mp.Pool(n_cpus -1)
 
-    for orb in range(1, 1000):
+    for orb in range(3000, 3100):
         pool.apply_async(func=make_apoapse_muv_globe, args=(orb,))
 
     pool.close()

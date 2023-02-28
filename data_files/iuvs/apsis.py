@@ -2,7 +2,7 @@ import mer
 import numpy as np
 import spiceypy
 
-from . import spice
+import spice
 
 
 def get_ephemeris_time(ephemeris_times: np.ndarray, orbit: int) -> np.ndarray:

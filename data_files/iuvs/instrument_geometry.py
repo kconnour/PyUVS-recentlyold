@@ -18,6 +18,6 @@ def compute_app_flip(x_field_of_view: np.ndarray, spacecraft_velocity_inertial_f
     try:
         dot = x_field_of_view[:, 0] * spacecraft_velocity_inertial_frame[:, 0] > 0
         app_flip = np.array([np.mean(dot) >= 0.25])
-    except IndexError:
+    except ValueError:
         app_flip = np.array([])
     return app_flip

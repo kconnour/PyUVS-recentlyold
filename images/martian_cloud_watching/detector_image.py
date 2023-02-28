@@ -196,9 +196,9 @@ if __name__ == '__main__':
     n_cpus = mp.cpu_count()
     pool = mp.Pool(n_cpus -1)
 
-    #for orb in [3453]:
-    #    pool.apply_async(func=make_histogram_equalized_detector_image, args=(orb,))
-        #pool.apply_async(func=make_square_root_scaled_detector_image, args=(orb,))
+    for orb in range(3000, 3100):
+        pool.apply_async(func=make_histogram_equalized_detector_image, args=(orb,))
+        pool.apply_async(func=make_square_root_scaled_detector_image, args=(orb,))
         #pool.apply_async(func=make_geometry_detector_image, args=(orb,))
     make_histogram_equalized_detector_image(3453)
     pool.close()

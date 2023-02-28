@@ -35,7 +35,7 @@ def get_apoapse_muv_fits_files(iuvs_fits_file_location: Path, orbit: int) -> lis
 
 def get_apoapse_muv_failsafe_files(hduls: list[fits.hdu.hdulist.HDUList]) -> list[fits.hdu.hdulist.HDUList]:
     mcp_voltage = [get_mcp_voltage(f) for f in hduls]
-    failsafe = [f == pu.apoapse_muv_failsafe_voltage for f in mcp_voltage]
+    failsafe = [np.isclose(f, pu.apoapse_muv_failsafe_voltage) for f in mcp_voltage]
     return [f for c, f in enumerate(hduls) if failsafe[c]]
 
 
