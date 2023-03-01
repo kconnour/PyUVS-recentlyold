@@ -128,12 +128,7 @@ def pcolormesh_rgb_detector_image(axis: plt.Axes, image: np.ndarray, x: np.ndarr
     pcolormesh_detector_image: pcolormesh a single-channel detector image.
 
     """
-    fill = image[:, :, 0]
-    image = np.reshape(image, (image.shape[0] * image.shape[1], image.shape[2]))
-    axis.pcolormesh(x, y, fill, color=image, linewidth=0, edgecolors='none', rasterized=True).set_array(None)
-
-    # This does not work but the documentation seems to indicate it should. It would replace the above.
-    axis.pcolormesh(x, y, image, linewidth=0, edgecolors='none', rasterized=True).set_array(None)
+    axis.pcolormesh(x, y, image, linewidth=0, edgecolors='none', rasterized=True)
 
 
 def plot_rgb_detector_image_in_axis(axis: plt.Axes, image: np.ndarray, swath_number: np.ndarray,
@@ -157,28 +152,3 @@ def plot_rgb_detector_image_in_axis(axis: plt.Axes, image: np.ndarray, swath_num
         swath_indices = swath_number == swath
         x, y = make_swath_grid(field_of_view[swath_indices], n_spatial_bins, swath, angular_size)
         pcolormesh_rgb_detector_image(axis, image[swath_indices], x, y)
-
-
-def add_terminator_contour_line_to_axis(axis: plt.Axes, solar_zenith_angle: np.ndarray, swath_number: np.ndarray,
-                                        field_of_view: np.ndarray, angular_size: float) -> None:
-    """Add terminator contour line to an axis.
-
-    Parameters
-    ----------
-    axis
-    solar_zenith_angle
-    swath_number
-    field_of_view
-    angular_size
-
-    Returns
-    -------
-
-    """
-    n_spatial_bins = solar_zenith_angle.shape[1]
-    spatial_bin_centers = np.linspace(0.5, n_spatial_bins - 1, num=n_spatial_bins)
-
-    for swath in np.unique(swath_number):
-        swath_indices = swath_number == swath
-        axis.contour(spatial_bin_centers + swath * angular_size, field_of_view[swath_indices],
-                     solar_zenith_angle[swath_indices], [90], colors='red', linewidths=0.5)

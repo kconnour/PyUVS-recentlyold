@@ -43,7 +43,7 @@ def compute_swath_number(mirror_angle: np.ndarray) -> np.ndarray:
 
 def make_apoapse_swath_number(field_of_view: np.ndarray, orbit: int) -> np.ndarray:
     swath_number = compute_swath_number(field_of_view)
-    if orbit in [3009, 3043]:
+    if orbit in []:
         swath_number += 1
     elif orbit in [3965]:
         swath_number += 4
