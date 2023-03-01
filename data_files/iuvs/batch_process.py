@@ -158,7 +158,7 @@ if __name__ == '__main__':
                     # TODO: pixel geometry
         file.close()
 
-    for orb in range(3203, 4000):
+    for orb in range(3392, 4000):
         batch_process_orbit(orb)
 
     #n_cpus = mp.cpu_count()

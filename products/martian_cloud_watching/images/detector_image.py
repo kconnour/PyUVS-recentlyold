@@ -51,7 +51,7 @@ def make_histogram_equalized_detector_image(orbit: int) -> None:
     fig, ax = setup_figure(n_swaths, angular_width, 6)
 
     graphics.plot_rgb_detector_image_in_axis(ax, image, swath_number, field_of_view, angular_width)
-    #graphics.add_terminator_contour_line_to_axis(ax, solar_zenith_angle, swath_number, field_of_view, angular_width)
+    graphics.add_terminator_contour_line_to_axis(ax, solar_zenith_angle, swath_number, field_of_view, angular_width)
 
     ax.set_xlim(0, angular_width * n_swaths)
     ax.set_ylim(pu.constants.minimum_mirror_angle * 2, pu.constants.maximum_mirror_angle * 2)
@@ -103,7 +103,7 @@ def make_square_root_scaled_detector_image(orbit: int) -> None:
     fig, ax = setup_figure(n_swaths, angular_width, 6)
 
     graphics.plot_rgb_detector_image_in_axis(ax, image, swath_number, field_of_view, angular_width)
-    # graphics.add_terminator_contour_line_to_axis(ax, solar_zenith_angle, swath_number, field_of_view, angular_width)
+    graphics.add_terminator_contour_line_to_axis(ax, solar_zenith_angle, swath_number, field_of_view, angular_width)
 
     ax.set_xlim(0, angular_width * n_swaths)
     ax.set_ylim(pu.constants.minimum_mirror_angle * 2, pu.constants.maximum_mirror_angle * 2)
@@ -117,7 +117,7 @@ def make_square_root_scaled_detector_image(orbit: int) -> None:
     spatial_bin_width = f['apoapse/muv/dayside/binning/spatial_bin_edges'][:].shape[0] - 1
     spectral_bin_width = f['apoapse/muv/dayside/binning/spectral_bin_edges'][:].shape[0] - 1
 
-    filename = make_filename(orbit_code, solar_longitude, subsolar_subspacecraft_angle, spatial_bin_width, spectral_bin_width, 'heq', 'ql')
+    filename = make_filename(orbit_code, solar_longitude, subsolar_subspacecraft_angle, spatial_bin_width, spectral_bin_width, 'sqrt', 'ql')
     plt.savefig(save_location / filename)
     plt.close(fig)
 
@@ -190,10 +190,11 @@ if __name__ == '__main__':
     n_cpus = mp.cpu_count()
     pool = mp.Pool(n_cpus -1)
 
-    for orb in range(3200, 3300):
-        make_histogram_equalized_detector_image(orb)
-        #pool.apply_async(func=make_histogram_equalized_detector_image, args=(orb,))
-        #pool.apply_async(func=make_square_root_scaled_detector_image, args=(orb,))
+    for orb in range(3300, 3400):
+        #make_histogram_equalized_detector_image(orb)
+        #make_square_root_scaled_detector_image(orb)
+        pool.apply_async(func=make_histogram_equalized_detector_image, args=(orb,))
+        pool.apply_async(func=make_square_root_scaled_detector_image, args=(orb,))
         #pool.apply_async(func=make_geometry_detector_image, args=(orb,))
     pool.close()
     pool.join()

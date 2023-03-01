@@ -17,7 +17,7 @@ def make_instrument_sun_angle(hduls: list[fits.hdu.hdulist.HDUList]) -> np.ndarr
 def compute_app_flip(x_field_of_view: np.ndarray, spacecraft_velocity_inertial_frame: np.ndarray) -> np.ndarray:
     try:
         dot = x_field_of_view[:, 0] * spacecraft_velocity_inertial_frame[:, 0]
-        app_flip = np.array([np.sum(dot) > 0])
+        app_flip = np.array([np.sum(dot) > 1])  # Orbit 3248 is an example of why this can't be 0
     except ValueError:
         app_flip = np.array([])
     return app_flip
